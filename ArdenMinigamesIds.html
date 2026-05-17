@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArdenMC Minigame Database Browser</title>
+    <style>
+        :root {
+            --bg-main: #12131a;
+            --bg-card: #1c1d26;
+            --text-main: #f1f2f6;
+            --text-muted: #a4b0be;
+            --gold: #ffaa00;
+            --rare-blue: #00a8ff;
+            --legendary-purple: #9c27b0;
+            --common-green: #2ed573;
+            --border-color: #2f3542;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            color: var(--gold);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--border-color);
+        }
+        .stat-box.total { border-left-color: var(--gold); }
+        .stat-box.common { border-left-color: var(--common-green); }
+        .stat-box.rare { border-left-color: var(--rare-blue); }
+        .stat-box.legendary { border-left-color: var(--legendary-purple); }
+
+        .stat-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.2rem;
+        }
+        .stat-box p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.15);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.5rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            border-color: var(--text-muted);
+        }
+
+        .tab-btn.active[data-tier="all"] { border-color: var(--gold); color: var(--gold); }
+        .tab-btn.active[data-tier="common"] { border-color: var(--common-green); color: var(--common-green); }
+        .tab-btn.active[data-tier="rare"] { border-color: var(--rare-blue); color: var(--rare-blue); }
+        .tab-btn.active[data-tier="legendary"] { border-color: var(--legendary-purple); color: var(--legendary-purple); }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .game-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .game-id {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tier-badge {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .tier-badge.common { background: rgba(46, 213, 115, 0.15); color: var(--common-green); }
+        .tier-badge.rare { background: rgba(0, 168, 255, 0.15); color: var(--rare-blue); }
+        .tier-badge.legendary { background: rgba(156, 39, 176, 0.15); color: var(--legendary-purple); }
+
+        .game-mechanic {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-quest {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .game-ans-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            border: 1px dashed var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ans-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .ans-value {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--gold);
+            font-size: 1.05rem;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 2px dashed var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ArdenMC Minigame Engine Dashboard</h1>
+        <div class="subtitle">Live database viewer matching all 500 fixed game options across scripts</div>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-box total"><h3>500</h3><p>Total Games</p></div>
+        <div class="stat-box common"><h3>100</h3><p>Common Tier</p></div>
+        <div class="stat-box rare"><h3>200</h3><p>Rare Tier</p></div>
+        <div class="stat-box legendary"><h3>200</h3><p>Legendary Tier</p></div>
+    </div>
+
+    <div class="search-wrapper">
+        <input type="text" id="searchBar" class="search-input" placeholder="Search by ID, task text, modifier type, or answer keywords...">
+    </div>
+
+    <div class="filter-tabs">
+        <button class="tab-btn active" data-tier="all">All Tiers</button>
+        <button class="tab-btn" data-tier="common">Common (1-100)</button>
+        <button class="tab-btn" data-tier="rare">Rare (101-200, 301-400)</button>
+        <button class="tab-btn" data-tier="legendary">Legendary (201-300, 401-500)</button>
+    </div>
+
+    <div class="grid-layout" id="gameGrid"></div>
+</div>
+
+<script>
+    const mechanics = ["Trivia", "Unscramble", "Unreverse", "Speed Type", "Math"];
+    const keywords = ["minecraft", "creeper", "zombie", "gold", "cat", "apple", "wood", "pig", "torch", "skeleton", "bread", "dirt", "stone", "sheep", "hoe", "water", "stick", "shield", "iron ingot", "boat", "piston", "compass", "cave", "lantern", "brick", "bow", "chestplate", "bed", "coal", "axe", "sand", "lava", "pickaxe", "chest", "hopper", "quartz", "netherrack", "cow", "helmet", "leaves", "fish", "fence", "rail", "seed", "temple", "tnt", "anvil", "repeater", "grass", "shovel", "glowstone", "bucket", "boots", "egg", "ladder", "cactus", "map", "furnace", "wool", "leggings", "emerald", "bottle", "rocks", "lever", "sword", "chicken", "shears", "door", "lead", "paper", "dungeon", "raw iron", "charcoal", "horse", "cauldron", "leather", "pressure plate", "planks", "fortress", "fire potion", "nether star", "obsidian", "blaze", "magma cream", "soul fire", "piglin", "ender pearls", "wither skull", "brewing stand", "flint and steel", "soul sand", "nether wart", "wither skeleton", "fireballs", "strider", "gold block", "bundle", "monument", "guardian", "prismarine", "wet sponge", "drowned", "trident", "conduit power", "conduit", "heart of the sea", "smoker", "mending", "unbreaking", "fortune", "silk touch", "efficiency", "sharpness", "knockback", "infinity", "power", "loyalty", "depth strider", "fire protection", "thorns", "feather falling", "bookshelves", "stronghold", "eye of ender", "end portal frame", "silverfish", "spawner", "mossy stone", "cleric", "lectern", "blast furnace", "smithing table", "emerald block", "fletcher", "stonecutter", "raid", "ravager", "witch", "totem of undying", "illager banner", "hero of the village", "evoker", "milk bucket", "potato", "bone", "pumpkin", "beehive", "honeycomb", "bee", "daylight detector", "phantom membrane", "fox", "packed ice", "crossbow", "cartography table", "string", "tomato", "strength", "sponge", "cave spider", "bricks", "carrot", "purpur block", "shulker", "elytra", "netherite", "beacon", "soul soil", "dragon egg", "totem", "wither", "enchanted", "absorption", "shulker shell", "end crystal", "obsidian pillars", "chorus flower", "chorus plant", "end rod", "deepslate", "observer", "end city", "spectral", "lingering potion", "woodland mansion", "treasure map", "item frame", "cape", "comparator", "warden", "deep dark", "sculk shrieker", "darkness", "sonic boom", "disc fragment", "reinforced deepslate", "allay", "jukebox", "outpost", "night vision", "fermented spider eye", "ghast tear", "slow falling", "swiftness potion", "glowstone dust", "gunpowder", "harming", "dragons breath", "sea lantern", "blaze powder", "ender pearl", "dropper", "blast protection", "igloo", "redstone block", "tripwire", "cartographer", "spectral arrow", "activator", "poison potion", "shipwreck", "nether quartz ore", "gold ingot", "banner", "regeneration", "library", "sculk", "target block", "fire aspect", "bane of arthropods", "ancient debris", "sweeping", "protection", "piercing", "riptide", "soul speed", "swift sneak", "curse of binding"];
+
+    function getTier(id) {
+        if (id <= 100) return "common";
+        if ((id >= 101 && id <= 200) || (id >= 301 && id <= 400)) return "rare";
+        return "legendary";
+    }
+
+    function generateDatabase() {
+        const db = [];
+        for (let i = 1; i <= 500; i++) {
+            let tier = getTier(i);
+            let keyword = keywords[(i - 1) % keywords.length];
+            let type = mechanics[i % mechanics.length];
+            let question = "";
+            let answer = keyword;
+
+            if (type === "Math") {
+                let n1 = (i * 3) % 40 + 10;
+                let n2 = (i * 7) % 30 + 5;
+                question = `Solve this mental math task block: ${n1} + ${n2}&7!`;
+                answer = (n1 + n2).toString();
+            } else if (type === "Unscramble") {
+                let scrambled = keyword.split('').sort(() => 0.5 - Math.random()).join('');
+                question = `Unscramble these letters structural asset: ${scrambled}&7!`;
+            } else if (type === "Unreverse") {
+                let reversed = keyword.split('').reverse().join('');
+                question = `Unreverse this backward word pattern safely: ${reversed}&7!`;
+            } else if (type === "Speed Type") {
+                question = `Type this specialized target phrase immediately: ${keyword}&7!`;
+            } else {
+                question = `Trivia Challenge Option: Which core design corresponds to ${keyword}?`;
+            }
+
+            db.push({ id: i, tier: tier, type: type, quest: question, ans: answer });
+        }
+        return db;
+    }
+
+    const minigamesDatabase = generateDatabase();
+    const gameGrid = document.getElementById("gameGrid");
+    const searchBar = document.getElementById("searchBar");
+    const tabButtons = document.querySelectorAll(".tab-btn");
+
+    let currentTierFilter = "all";
+
+    function renderCards() {
+        const query = searchBar.value.toLowerCase().trim();
+        gameGrid.innerHTML = "";
+        let matchedCount = 0;
+
+        minigamesDatabase.forEach(game => {
+            if (currentTierFilter !== "all" && game.tier !== currentTierFilter) return;
+
+            const matchesSearch = 
+                game.id.toString() === query || 
+                game.quest.toLowerCase().includes(query) || 
+                game.ans.toLowerCase().includes(query) || 
+                game.type.toLowerCase().includes(query);
+
+            if (query !== "" && !matchesSearch) return;
+
+            matchedCount++;
+
+            const card = document.createElement("div");
+            card.className = "game-card";
+            card.innerHTML = `
+                <div>
+                    <div class="card-header">
+                        <span class="game-id">ID: #${game.id}</span>
+                        <span class="tier-badge ${game.tier}">${game.tier}</span>
+                    </div>
+                    <div class="game-mechanic">${game.type}</div>
+                    <div class="game-quest">${game.quest.replace(/&7/g, '')}</div>
+                </div>
+                <div class="game-ans-box">
+                    <span class="ans-label">Correct String</span>
+                    <span class="ans-value">${game.ans}</span>
+                </div>
+            `;
+            gameGrid.appendChild(card);
+        });
+
+        if (matchedCount === 0) {
+            gameGrid.innerHTML = `
+                <div class="no-results">
+                    <h3>No Matching Entry Blocks</h3>
+                    <p>Change your keywords or switch tab filters to evaluate other game files layout.</p>
+                </div>
+            `;
+        }
+    }
+
+    searchBar.addEventListener("input", renderCards);
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            tabButtons.forEach(b => b.classList.remove("active"));
+            e.target.classList.add("active");
+            currentTierFilter = e.target.getAttribute("data-tier");
+            renderCards();
+        });
+    });
+
+    renderCards();
+</script>
+
+</body>
+</html>

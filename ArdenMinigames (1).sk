@@ -1,0 +1,851 @@
+options:
+    p: &6&lArdenMC &8»&7 
+    o: &6 
+    w: &f 
+    timer_seconds: 60 
+    cooldown_seconds: 1
+variables:
+    {game.active} = false
+    {game.type} = ""
+    {game.answer} = ""
+    {game.difficulty} = ""
+    {econ.enabled} = false
+    {amc.sounds} = true
+    {amc.actionbars} = true
+    {amc.particles} = true
+    {amc.stats.total_played} = 0
+    {amc.stats.total_rewards} = 0
+    {amc.streak.current} = 0
+    {amc.streak.holder} = "None"
+    {amc.locked} = false
+function amc_clean_text(t: text) :: text:
+    set {_v} to {_t}
+    replace all "&0" with "§0" in {_v}
+    replace all "&1" with "§1" in {_v}
+    replace all "&2" with "§2" in {_v}
+    replace all "&3" with "§3" in {_v}
+    replace all "&4" with "§4" in {_v}
+    replace all "&5" with "§5" in {_v}
+    replace all "&6" with "§6" in {_v}
+    replace all "&7" with "§7" in {_v}
+    replace all "&8" with "§8" in {_v}
+    replace all "&9" with "§9" in {_v}
+    replace all "&a" with "§a" in {_v}
+    replace all "&b" with "§b" in {_v}
+    replace all "&c" with "§c" in {_v}
+    replace all "&d" with "§d" in {_v}
+    replace all "&e" with "§e" in {_v}
+    replace all "&f" with "§f" in {_v}
+    replace all "&l" with "§l" in {_v}
+    replace all "&o" with "§o" in {_v}
+    replace all "&n" with "§n" in {_v}
+    replace all "&m" with "§m" in {_v}
+    replace all "&k" with "§k" in {_v}
+    replace all "&r" with "§r" in {_v}
+    return {_v}
+function amc_broadcast(msg: text):
+    set {_m} to amc_clean_text({_msg})
+    loop all players:
+        send "%{_m}%" to loop-player
+function amc_msg(p: player, msg: text):
+    set {_m} to amc_clean_text({_msg})
+    send "%{_m}%" to {_p}
+function amc_actionbar(p: player, msg: text):
+    if {amc.actionbars} is true:
+        set {_m} to amc_clean_text({_msg})
+        send action bar "%{_m}%" to {_p}
+function amc_sound(p: player, s: text, v: number, pi: number):
+    if {amc.sounds} is true:
+        play sound "%{_s}%" with volume {_v} and pitch {_pi} to {_p}
+function amc_particle(p: player, pt: text):
+    if {amc.particles} is true:
+        display fountain particle "%{_pt}%" at {_p}
+function amc_init_database_1():
+    set {_d::1} to "1|chat|Common|Unreverse this word: tfarcenim&7!|minecraft"
+    set {_d::2} to "2|chat|Common|Type this word as fast as you can: creeper&7!|creeper"
+    set {_d::3} to "3|chat|Common|Unscramble: eimbzo&7!|zombie"
+    set {_d::4} to "4|chat|Common|Trivia: What material makes the fastest tools but breaks quickest?|gold"
+    set {_d::5} to "5|chat|Common|Trivia: What animal are Creepers afraid of?|cat"
+    set {_d::6} to "6|chat|Common|Unscramble: pelpa&7!|apple"
+    set {_d::7} to "7|chat|Common|Solve this quick calculation: 10 + 5&7!|15"
+    set {_d::8} to "8|chat|Common|Trivia: What basic resource do you gather from chopping trees?|wood"
+    set {_d::9} to "9|chat|Common|Unreverse this basic word: gip&7!|pig"
+    set {_d::10} to "10|chat|Common|Type this standard word as fast as you can: torch&7!|torch"
+    set {_d::11} to "11|chat|Common|Trivia: What type of ore requires at least an iron pickaxe to mine?|gold"
+    set {_d::12} to "12|chat|Common|Unscramble the monster name: sletkneo&7!|skeleton"
+    set {_d::13} to "13|chat|Common|Trivia: What food source do you obtain from harvesting mature wheat?|bread"
+    set {_d::14} to "14|chat|Common|Type this basic block name instantly: dirt&7!|dirt"
+    set {_d::15} to "15|chat|Common|Unreverse this foundational material: enots&7!|stone"
+    set {_d::16} to "16|chat|Common|Trivia: What friendly mob can be sheared to collect wool blocks?|sheep"
+    set {_d::17} to "17|chat|Common|Solve this simple addition string: 12 + 8&7!|20"
+    set {_d::18} to "18|chat|Common|Unscramble this useful farming item: ohe&7!|hoe"
+    set {_d::19} to "19|chat|Common|Trivia: What liquid blocks can stop you from taking fatal fall damage?|water"
+    set {_d::20} to "20|chat|Common|Type this crafting component quickly: stick&7!|stick"
+    set {_d::21} to "21|chat|Common|Unreverse this standard defensive item: leihds&7!|shield"
+    set {_d::22} to "22|chat|Common|Trivia: What common item is crafted by smelting raw iron ore blocks?|iron ingot"
+    set {_d::23} to "23|chat|Common|Unscramble this underwater structure object: obta&7!|boat"
+    set {_d::24} to "24|chat|Common|Solve this straightforward subtraction: 25 - 7&7!|18"
+    set {_d::25} to "25|chat|Common|Type this redstone block name instantly: piston&7!|piston"
+    set {_d::26} to "26|chat|Common|Trivia: What useful tracking item is made using four iron ingots and redstone?|compass"
+    set {_d::27} to "27|chat|Common|Unreverse this subterranean landscape word: evac&7!|cave"
+    set {_d::28} to "28|chat|Common|Trivia: What common underworld mob drops rotten flesh when killed?|zombie"
+    set {_d::29} to "29|chat|Common|Unscramble this basic light source item: anteasrn&7!|lantern"
+    set {_d::30} to "30|chat|Common|Type this building block name as fast as possible: brick&7!|brick"
+    set {_d::31} to "31|chat|Common|Solve this double digit math problem: 30 + 14&7!|44"
+    set {_d::32} to "32|chat|Common|Trivia: What weapon type is primarily used to shoot arrows at targets?|bow"
+    set {_d::33} to "33|chat|Common|Unreverse this fundamental defensive gear piece: tlespatehc&7!|chestplate"
+    set {_d::34} to "34|chat|Common|Trivia: What item can you sleep in to successfully skip the night cycle?|bed"
+    set {_d::35} to "35|chat|Common|Unscramble this subterranean resource type: lacof&7!|coal"
+    set {_d::36} to "36|chat|Common|Type this basic tool item name right now: axe&7!|axe"
+    set {_d::37} to "37|chat|Common|Trivia: What block type is commonly melted down to create clean glass panels?|sand"
+    set {_d::38} to "38|chat|Common|Unreverse this fiery hazard word: aval&7!|lava"
+    set {_d::39} to "39|chat|Common|Solve this primary grade level math equation: 50 - 15&7!|35"
+    set {_d::40} to "40|chat|Common|Trivia: What specific tool is required to efficiently mine solid stone?|pickaxe"
+    set {_d::41} to "41|chat|Common|Unscramble this storage solution item name: tsceh&7!|chest"
+    set {_d::42} to "42|chat|Common|Type this processing utility name: hopper&7!|hopper"
+    set {_d::43} to "43|chat|Common|Trivia: What drop do you get from mining nether quartz ore blocks?|quartz"
+    set {_d::44} to "44|chat|Common|Unreverse this Nether native environmental block: kckracthe&7!|netherrack"
+    set {_d::45} to "45|chat|Common|Solve this mental math addition step: 40 + 60&7!|100"
+    set {_d::46} to "46|chat|Common|Trivia: Which passive animal mob gives you raw beef upon death?|cow"
+    set {_d::47} to "47|chat|Common|Unscramble this protective gear item: metleh&7!|helmet"
+    set {_d::48} to "48|chat|Common|Type this basic plant component name: leaves&7!|leaves"
+    set {_d::49} to "49|chat|Common|Trivia: What item can be caught using a fishing rod tool?|fish"
+    set {_d::50} to "50|chat|Common|Unreverse this decorative structure block: encfe&7!|fence"
+    set {_d::51} to "51|chat|Common|Solve this simple mathematical sum: 18 + 12&7!|30"
+    set {_d::52} to "52|chat|Common|Trivia: What blocks do endermen frequently pick up and carry around?|blocks"
+    set {_d::53} to "53|chat|Common|Unscramble this transport system element: rlia&7!|rail"
+    set {_d::54} to "54|chat|Common|Type this common farming item name: seed&7!|seed"
+    set {_d::55} to "55|chat|Common|Trivia: What structure spawns naturally in deserts and contains loot chests?|temple"
+    set {_d::56} to "56|chat|Common|Unreverse this explosive block name: tnt&7!|tnt"
+    set {_d::57} to "57|chat|Common|Solve this double digit calculation subtraction: 80 - 25&7!|55"
+    set {_d::58} to "58|chat|Common|Trivia: What utility block allows players to repair damaged gear items?|anvil"
+    set {_d::59} to "59|chat|Common|Unscramble this valuable redstone component: reptaee&7!|repeater"
+    set {_d::60} to "60|chat|Common|Type this common world generation plant name: grass&7!|grass"
+    set {_d::61} to "61|chat|Common|Trivia: What block type drops a music disc if killed by a skeleton arrow?|creeper"
+    set {_d::62} to "62|chat|Common|Unreverse this farming tool name: levohs&7!|shovel"
+    set {_d::63} to "63|chat|Common|Solve this fundamental dynamic equation: 100 - 45&7!|55"
+    set {_d::64} to "64|chat|Common|Trivia: What block type provides the maximum amount of light when placed?|glowstone"
+    set {_d::65} to "65|chat|Common|Unscramble this useful liquid container: bketcu&7!|bucket"
+    set {_d::66} to "66|chat|Common|Type this standard defensive equipment item: boots&7!|boots"
+    set {_d::67} to "67|chat|Common|Trivia: What is the primary item dropped by chickens besides feathers?|egg"
+    set {_d::68} to "68|chat|Common|Unreverse this structural support item: raddel&7!|ladder"
+    set {_d::69} to "69|chat|Common|Solve this basic mathematical challenge: 14 + 16&7!|30"
+    set {_d::70} to "70|chat|Common|Trivia: What common green plant item grows exclusively on sand blocks?|cactus"
+    set {_d::71} to "71|chat|Common|Unscramble this primary exploration tool: pam&7!|map"
+    set {_d::72} to "72|chat|Common|Type this processing block name immediately: furnace&7!|furnace"
+    set {_d::73} to "73|chat|Common|Trivia: What structural block type blocks light and is sheared from sheep?|wool"
+    set {_d::74} to "74|chat|Common|Unreverse this standard protective item: sniggelg&7!|leggings"
+    set {_d::75} to "75|chat|Common|Solve this basic subtraction arithmetic: 95 - 30&7!|65"
+    set {_d::76} to "76|chat|Common|Trivia: What valuable green item is primarily used as currency with villagers?|emerald"
+    set {_d::77} to "77|chat|Common|Unscramble this brewing item structure: btetlo&7!|bottle"
+    set {_d::78} to "78|chat|Common|Type this underground structural object: raw stone&7!|raw stone"
+    set {_d::79} to "79|chat|Common|Trivia: What block type functions as the direct opposite of a standard button?|lever"
+    set {_d::80} to "80|chat|Common|Unreverse this crafting grid output item: drow_s&7!|sword"
+    set {_d::81} to "81|chat|Common|Solve this mental double addition problem: 33 + 33&7!|66"
+    set {_d::82} to "82|chat|Common|Trivia: What organic item drops rarely from oak leaves blocks when broken?|apple"
+    set {_d::83} to "83|chat|Common|Unscramble this base redstone wiring item: tndsoere&7!|redstone"
+    set {_d::84} to "84|chat|Common|Type this passive flying bird mob name: chicken&7!|chicken"
+    set {_d::85} to "85|chat|Common|Trivia: Which specific tool allows you to safely collect a whole leaf block?|shears"
+    set {_d::86} to "86|chat|Common|Unreverse this basic entry barrier block: rood&7!|door"
+    set {_d::87} to "87|chat|Common|Solve this double digit quick equation: 72 - 12&7!|60"
+    set {_d::88} to "88|chat|Common|Trivia: What item type is used to bind and visually lead animals around?|lead"
+    set {_d::89} to "89|chat|Common|Unscramble this book crafting component: pale_r&7!|paper"
+    set {_d::90} to "90|chat|Common|Type this common underworld structure: dungeon&7!|dungeon"
+    set {_d::91} to "91|chat|Common|Trivia: What raw element drops from broken iron ore items inside caves?|raw iron"
+    set {_d::92} to "92|chat|Common|Unreverse this raw structural fuel type: laocrahc&7!|charcoal"
+    set {_d::93} to "93|chat|Common|Solve this simple numerical challenge: 45 + 15&7!|60"
+    set {_d::94} to "94|chat|Common|Trivia: What passive animal can be ridden if equipped with a saddle?|horse"
+    set {_d::95} to "95|chat|Common|Unscramble this useful liquid storage block: uaclnodr&7!|cauldron"
+    set {_d::96} to "96|chat|Common|Type this common base item ingredient: leather&7!|leather"
+    set {_d::97} to "97|chat|Common|Trivia: What block item type acts as an interactive switch when stepped on?|pressure plate"
+    set {_d::98} to "98|chat|Common|Unreverse this classic building material: sknalp&7!|planks"
+    set {_d::99} to "99|chat|Common|Solve this mental math challenge: 120 - 40&7!|80"
+    set {_d::100} to "100|chat|Common|Trivia: What standard tool type is best utilized to clear dirt rapidly?|shovel"
+    loop {_d::*}:
+        set {_s::*} to loop-value split at "|"
+        set {-amc::games::%{_s::1}%::type} to {_s::2}
+        set {-amc::games::%{_s::1}%::diff} to {_s::3}
+        set {-amc::games::%{_s::1}%::quest} to {_s::4}
+        set {-amc::games::%{_s::1}%::ans} to {_s::5}
+        add 1 to {-amc::total_loaded}
+on script load:
+    execute console command "/minigamereloadall"
+command /minigamereloadall:
+    permission: ardenmc.admin
+    trigger:
+        delete {-amc::games::*}
+        set {-amc::total_loaded} to 0
+        amc_init_database_1()
+        try:
+            evaluate "amc_init_database_2()"
+        try:
+            evaluate "amc_init_database_3()"
+        try:
+            evaluate "amc_init_database_4()"
+        try:
+            evaluate "amc_init_database_5()"
+        amc_broadcast("{@p} &aAll configured database entities across pastes completely reindexed! Loaded: &f%{-amc::total_loaded}% &aIDs.")
+command /minigame [<text>] [<text>] [<text>]:
+    permission: ardenmc.admin
+    trigger:
+        if arg-1 is not set:
+            amc_msg(player, "{@p} {@w}Available Subcommands:")
+            amc_msg(player, "{@o}/minigame start [id] {@w}- Run a game")
+            amc_msg(player, "{@o}/minigame stop {@w}- Stop current game")
+            amc_msg(player, "{@o}/minigame list {@w}- View question status")
+            amc_msg(player, "{@o}/minigame skip {@w}- Skip current question")
+            amc_msg(player, "{@o}/minigame stats [player] {@w}- View stats")
+            amc_msg(player, "{@o}/minigame toggle [sounds/bars/particles] {@w}- Toggle features")
+            amc_msg(player, "{@o}/minigame lock {@w}- Lock or unlock games")
+            amc_msg(player, "{@o}/minigame reward [common/rare/legendary] {@w}- Give crate")
+            amc_msg(player, "{@o}/minigame reload {@w}- Reload system memory")
+            amc_msg(player, "{@o}/minigame econ [true/false] {@w}- Toggle economy link")
+            amc_msg(player, "{@o}/minigame debug {@w}- Run internal diagnosis check")
+            amc_msg(player, "{@o}/minigame streak {@w}- View current top streak status")
+            stop
+        if arg-1 is "list":
+            amc_msg(player, "§a§l╔════════════════════════════════════════╗")
+            amc_msg(player, "  §6§lArdenMC Registered Minigame IDs Index")
+            amc_msg(player, "§a§l╚════════════════════════════════════════╝")
+            loop {-amc::games::*}:
+                amc_msg(player, " §7» §fID: §6%loop-index% §7| §e%{-amc::games::%loop-index%::diff}% §7| §f%{-amc::games::%loop-index%::type}%")
+            amc_msg(player, "§a§l╚════════════════════════════════════════╝")
+            amc_msg(player, "{@o}Total active questions in local runtime cache: {@w}%{-amc::total_loaded}%")
+            stop
+        if arg-1 is "reload":
+            execute console command "/minigamereloadall"
+            stop
+        if arg-1 is "stop":
+            if {game.active} is false:
+                amc_msg(player, "{@p} &cThere is no active minigame running currently!")
+                stop
+            set {game.active} to false
+            amc_broadcast("{@p} &cThe active minigame was manually terminated by an administrator.")
+            stop
+        if arg-1 is "skip":
+            if {game.active} is false:
+                amc_msg(player, "{@p} &cNo game is running to skip!")
+                stop
+            amc_broadcast("{@p} {@w}The active question was skipped. Answer was: {@o}%{game.answer}%")
+            set {game.active} to false
+            execute console command "/minigame start"
+            stop
+        if arg-1 is "lock":
+            if {amc.locked} is false:
+                set {amc.locked} to true
+                amc_msg(player, "{@p} &cAutomated scheduling and manual starts have been locked.")
+            else:
+                set {amc.locked} to false
+                amc_msg(player, "{@p} &aAutomated scheduling system has been unlocked.")
+            stop
+        if arg-1 is "econ":
+            if arg-2 is "true":
+                set {econ.enabled} to true
+                amc_msg(player, "{@p} &aEconomy hook enabled permanently.")
+            else if arg-2 is "false":
+                set {econ.enabled} to false
+                amc_msg(player, "{@p} &cEconomy hook disabled.")
+            else:
+                amc_msg(player, "{@p} {@w}Usage: {@o}/minigame econ [true/false]")
+            stop
+        if arg-1 is "streak":
+            amc_msg(player, "{@p} {@w}Current Answer Streak: {@o}%{amc.streak.current}% wins {@w}held by {@o}%{amc.streak.holder}%&7.")
+            stop
+        if arg-1 is "debug":
+            amc_msg(player, "{@p} &e--- Diagnosis Log ---")
+            amc_msg(player, "{@w}Active State: %{game.active}%")
+            amc_msg(player, "{@w}Current Type: %{game.type}%")
+            amc_msg(player, "{@w}Current Answer: %{game.answer}%")
+            amc_msg(player, "{@w}Loaded Size: %{-amc::total_loaded}%")
+            amc_msg(player, "{@w}Lock Status: %{amc.locked}%")
+            stop
+        if arg-1 is "toggle":
+            if arg-2 is "sounds":
+                if {amc.sounds} is true:
+                    set {amc.sounds} to false
+                    amc_msg(player, "{@p} &cSounds deactivated.")
+                else:
+                    set {amc.sounds} to true
+                    amc_msg(player, "{@p} &aSounds activated.")
+            else if arg-2 is "bars":
+                if {amc.actionbars} is true:
+                    set {amc.actionbars} to false
+                    amc_msg(player, "{@p} &cActionbars deactivated.")
+                else:
+                    set {amc.actionbars} to true
+                    amc_msg(player, "{@p} &aActionbars activated.")
+            else if arg-2 is "particles":
+                if {amc.particles} is true:
+                    set {amc.particles} to false
+                    amc_msg(player, "{@p} &cParticles deactivated.")
+                else:
+                    set {amc.particles} to true
+                    amc_msg(player, "{@p} &aParticles activated.")
+            else:
+                amc_msg(player, "{@p} {@w}Usage: {@o}/minigame toggle [sounds/bars/particles]")
+            stop
+        if arg-1 is "stats":
+            set {_t} to player
+            if arg-2 is set:
+                set {_t} to arg-2 parsed as player
+            if {_t} is not set:
+                amc_msg(player, "{@p} &cTarget player profile not found online.")
+                stop
+            amc_msg(player, "{@p} {@o}--- Statistics for %{_t}% ---")
+            amc_msg(player, "{@w}Total Minigame Wins: {@o}%{wins.%{_t}%}%")
+            stop
+        if arg-1 is "reward":
+            set {_p} to player
+            if arg-3 is set:
+                set {_p} to arg-3 parsed as player
+            if {_p} is not set:
+                amc_msg(player, "{@p} &cInvalid target player selection.")
+                stop
+            if arg-2 is "common":
+                give random element of (5 steak, 3 cooked porkchop, 4 iron ore, 8 coal) to {_p}
+                amc_msg({_p}, "{@p} {@w}Admin granted you a {@o}Common Item Pack{@w}!")
+            else if arg-2 is "rare":
+                give random element of (2 diamond, 3 gold ore, 1 golden apple, 8 obsidian) to {_p}
+                amc_msg({_p}, "{@p} {@w}Admin granted you a {@o}Rare Block/Ore Pack{@w}!")
+            else if arg-2 is "legendary":
+                give random element of (1 emerald block, 1 diamond block, 3 enchanted golden apple, 1 sponge) to {_p}
+                amc_msg({_p}, "{@p} {@w}Admin granted you a {@o}Legendary Luxury Pack{@w}!")
+            else:
+                amc_msg(player, "{@p} {@w}Usage: {@o}/minigame reward [common/rare/legendary] [player]")
+            stop
+        if arg-1 is "start":
+            if {game.active} is true:
+                amc_msg(player, "{@p} {@o}A game session is currently active processing answers!")
+                stop
+            if {amc.locked} is true:
+                amc_msg(player, "{@p} &cThe minigame framework engine is currently administratively locked.")
+                stop
+            set {_id} to arg-2
+            if {_id} is not set:
+                set {_size} to size of {-amc::games::*}
+                set {_rand} to random integer between 1 and {_size}
+                set {_id} to "%{_rand}%"
+            set {game.active} to true
+            set {_numId} to {_id} parsed as integer
+            add 1 to {amc.stats.total_played}
+            if {-amc::games::%{_id}%::type} is set:
+                set {game.type} to {-amc::games::%{_id}%::type}
+                set {game.difficulty} to {-amc::games::%{_id}%::diff}
+                set {game.answer} to {-amc::games::%{_id}%::ans}
+                amc_broadcast("§e§l┌────────────────────────────────────────┐")
+                amc_broadcast("  §6§lCHAT MINIGAME STARTED!")
+                amc_broadcast("  §fDifficulty: §e%{game.difficulty}%")
+                amc_broadcast("  §fQuestion: §b%{-amc::games::%{_id}%::quest}%")
+                amc_broadcast("§e§l└────────────────────────────────────────┘")
+            else:
+                set {game.active} to false
+                amc_msg(player, "{@p} &cError: Question ID %{_id}% data fields are not loaded.")
+                stop
+            loop all players:
+                amc_sound(loop-player, "block_note_pling", 1, 1)
+                amc_actionbar(loop-player, "§6§l» §fA chat game session has initiated! §6§l«")
+            wait {@timer_seconds} seconds
+            if {game.active} is true:
+                set {game.active} to false
+                amc_broadcast("§c§l┌────────────────────────────────────────┐")
+                amc_broadcast("  §c§lTIME EXPIRED!")
+                amc_broadcast("  §fNobody answered within the limits.")
+                amc_broadcast("  §fThe target answer was: §e%{game.answer}%")
+                amc_broadcast("§c§l└────────────────────────────────────────┘")
+                set {amc.streak.current} to 0
+                set {amc.streak.holder} to "None"
+on chat:
+    if {game.active} is true:
+        if {game.type} is "chat":
+            if message is {game.answer}:
+                cancel event
+                gameWin(player)
+function gameWin(p: player):
+    set {game.active} to false
+    add 1 to {wins.%{_p}%}
+    add 1 to {amc.stats.total_rewards}
+    if {amc.streak.holder} is "%{_p}%":
+        add 1 to {amc.streak.current}
+    else:
+        set {amc.streak.holder} to "%{_p}%"
+        set {amc.streak.current} to 1
+    amc_broadcast("§a§l┌────────────────────────────────────────┐")
+    amc_broadcast("  §6§l%_p% §fcorrectly answered the challenge!")
+    amc_broadcast("  §fAnswer: §a%{game.answer}%")
+    amc_broadcast("  §6§l%{amc.streak.holder}% §fis on a consecutive win streak of §6§l%{amc.streak.current}%§f!")
+    amc_broadcast("§a§l└────────────────────────────────────────┘")
+    amc_sound({_p}, "entity_player_levelup", 1, 1)
+    amc_particle({_p}, "totem")
+    amc_actionbar({_p}, "§6§l★ §aChallenge successfully won! §6§l★")
+    if {game.difficulty} is "Common":
+        give random element of (5 steak, 3 cooked porkchop, 4 iron ore, 8 coal) to {_p}
+        amc_msg({_p}, "{@p} {@w}You received a {@o}Common Item Pack{@w}!")
+    else if {game.difficulty} is "Rare":
+        give random element of (2 diamond, 3 gold ore, 1 golden apple, 8 obsidian) to {_p}
+        amc_msg({_p}, "{@p} {@w}You received a {@o}Rare Block/Ore Pack{@w}!")
+    else if {game.difficulty} is "Legendary":
+        give random element of (1 emerald block, 1 diamond block, 3 enchanted golden apple, 1 sponge) to {_p}
+        amc_msg({_p}, "{@p} {@w}You received a {@o}Legendary Luxury Pack{@w}!")
+    if {econ.enabled} is true:
+        if {your_money_variable::%{_p}%} is set:
+            add 50 to {your_money_variable::%{_p}%}
+            amc_msg({_p}, "{@p} {@w}Bonus Link: Deposited {@o}$50 {@w}directly into account balance.")
+every 3 minutes:
+    if {amc.locked} is false:
+        if {game.active} is false:
+            set {amc.last_game_time} to now
+            set {_random_id} to random integer between 1 and 500
+            execute console command "/minigame start %{_random_id}%"
+command /repeat:
+    trigger:
+        if {game.active} is false:
+            amc_msg(player, "{@p} &cThere is no active minigame running to repeat!")
+            stop
+        amc_msg(player, "{@p} {@w}Active Question: &b%{-amc::games::%{game.answer}%::quest}%")
+function amc_init_database_2():
+    set {_d::101} to "101|chat|Rare|Unreverse this nether word: srtreor_tf&7!|fortress"
+    set {_d::102} to "102|chat|Rare|Type this fast to avoid burning: f_i_r_e_p_o_t_i_o_n&7!|fire potion"
+    set {_d::103} to "103|chat|Rare|Unscramble this rare dropped item: n_e_t_h_e_r_s_t_a_r&7!|nether star"
+    set {_d::104} to "104|chat|Rare|Trivia: What block types are used to construct a nether portal framework?|obsidian"
+    set {_d::105} to "105|chat|Rare|Trivia: What mob drops a blaze rod weapon component when defeated?|blaze"
+    set {_d::106} to "106|chat|Rare|Unscramble this brewing stand item ingredient: m_a_g_m_a_c_r_e_a_m&7!|magma cream"
+    set {_d::107} to "107|chat|Rare|Solve this quick intermediate addition: 150 + 275&7!|425"
+    set {_d::108} to "108|chat|Rare|Trivia: What specific ore item can only be found naturally in nether biomes?|quartz"
+    set {_d::109} to "109|chat|Rare|Unreverse this hazardous soul sand valley hazard: e_r_i_f_l_u_o_s&7!|soul fire"
+    set {_d::110} to "110|chat|Rare|Type this nether resident mob name immediately: p_i_g_l_i_n&7!|piglin"
+    set {_d::111} to "111|chat|Rare|Trivia: What valuable items do piglin mobs give players during gold bar trading?|ender pearls"
+    set {_d::112} to "112|chat|Rare|Unscramble this rare wither combat gear drops: w_i_t_h_e_r_s_k_u_l_l&7!|wither skull"
+    set {_d::113} to "113|chat|Rare|Trivia: What unique block structure is engineered to hold brewing items?|brewing stand"
+    set {_d::114} to "114|chat|Rare|Type this classic nether exploration tool item: f_l_i_n_t_a_n_d_s_t_e_e_l&7!|flint and steel"
+    set {_d::115} to "115|chat|Rare|Unreverse this slowing utility block found in nether: d_n_a_s_l_u_o_s&7!|soul sand"
+    set {_d::116} to "116|chat|Rare|Trivia: What plant item grows naturally on soul sand inside nether fortresses?|nether wart"
+    set {_d::117} to "117|chat|Rare|Solve this complex calculation sequence: 300 - 145&7!|155"
+    set {_d::118} to "118|chat|Rare|Unscramble this unique nether fortress resident: w_i_t_h_e_r_s_k_e_l_e_t_o_n&7!|wither skeleton"
+    set {_d::119} to "119|chat|Rare|Trivia: What explosive projectiles do ghast mobs fire towards intruders?|fireballs"
+    set {_d::120} to "120|chat|Rare|Type this item required to navigate nether lava seas: s_t_r_i_d_e_r&7!|strider"
+    set {_d::121} to "121|chat|Rare|Unreverse this precious crafting ingredient item: k_c_o_l_b_d_l_o_g&7!|gold block"
+    set {_d::122} to "122|chat|Rare|Trivia: What specific type of item package is crafted from rabbit hides?|bundle"
+    set {_d::123} to "123|chat|Rare|Unscramble this ocean biome structural object: m_o_n_u_m_e_n_t&7!|monument"
+    set {_d::124} to "124|chat|Rare|Solve this quick mathematical mental equation: 125 * 3&7!|375"
+    set {_d::125} to "125|chat|Rare|Type this specific deep sea mob name instantly: g_u_a_r_d_i_a_n&7!|guardian"
+    set {_d::126} to "126|chat|Rare|Trivia: What valuable item material do guardians drop rarely upon death?|prismarine"
+    set {_d::127} to "127|chat|Rare|Unreverse this deep underwater base element block: e_g_n_o_p_s_w_e_t&7!|wet sponge"
+    set {_d::128} to "128|chat|Rare|Trivia: Which dangerous water mob attacks boats and swims in deep oceans?|drowned"
+    set {_d::129} to "129|chat|Rare|Unscramble this unique deep sea weapon object: t_r_i_d_e_n_t&7!|trident"
+    set {_d::130} to "130|chat|Rare|Type this status effect granted by conduits under ocean bases: c_o_n_d_u_i_t_p_o_w_e_r&7!|conduit power"
+    set {_d::131} to "131|chat|Rare|Solve this triple value calculation: 50 + 50 + 75&7!|175"
+    set {_d::132} to "132|chat|Rare|Trivia: What structure provides deep sea light blocks and acts as a beacon?|conduit"
+    set {_d::133} to "133|chat|Rare|Unreverse this ocean drop used for aquatic crafting: t_r_a_e_h_f_o_e_h_t_n_a_e_c_o&7!|heart of the sea"
+    set {_d::134} to "134|chat|Rare|Trivia: What block structure items can be used to cook food blocks faster?|smoker"
+    set {_d::135} to "135|chat|Rare|Unscramble this specialized gear enchantment trait: m_e_n_d_i_n_g&7!|mending"
+    set {_d::136} to "136|chat|Rare|Type this high tier tool enchantment name right now: u_n_b_r_e_a_k_i_n_g&7!|unbreaking"
+    set {_d::137} to "137|chat|Rare|Trivia: What tool enchantment item yields extra diamond drops from ore?|fortune"
+    set {_d::138} to "138|chat|Rare|Unreverse this specific block mining enchantment modifier: h_c_u_o_t_k_l_i_s&7!|silk touch"
+    set {_d::139} to "139|chat|Rare|Solve this advanced subtraction string sequence: 500 - 225&7!|275"
+    set {_d::140} to "140|chat|Rare|Trivia: What enchantment increases your physical base tool operating speed?|efficiency"
+    set {_d::141} to "141|chat|Rare|Unscramble this high damage combat gear sword trait: s_h_a_r_p_n_e_s_s&7!|sharpness"
+    set {_d::142} to "142|chat|Rare|Type this weapon property that sends enemies flying backward: k_n_o_c_k_b_a_c_k&7!|knockback"
+    set {_d::143} to "143|chat|Rare|Trivia: What bow weapon enchantment provides infinite arrow projectiles?|infinity"
+    set {_d::144} to "144|chat|Rare|Unreverse this dynamic projectile modification enchant: r_e_w_o_p&7!|power"
+    set {_d::145} to "145|chat|Rare|Solve this multi variable equation process: 60 * 5&7!|300"
+    set {_d::146} to "146|chat|Rare|Trivia: Which specific tool modifier allows tridents to return back?|loyalty"
+    set {_d::147} to "147|chat|Rare|Unscramble this swift aquatic footgear armor enchantment: d_e_p_t_h_s_t_r_i_d_e_r&7!|depth strider"
+    set {_d::148} to "148|chat|Rare|Type this defense trait reducing environmental fire impact: f_i_r_e_p_r_o_t_e_c_t_i_o_n&7!|fire protection"
+    set {_d::149} to "149|chat|Rare|Trivia: What armor modifier deals return prick damage back to attacking mobs?|thorns"
+    set {_d::150} to "150|chat|Rare|Unreverse this boots modification reducing fall damage: g_n_i_l_l_a_f_r_e_h_t_a_e_f&7!|feather falling"
+    set {_d::151} to "151|chat|Rare|Solve this mathematical balance formula equation: 800 - 450&7!|350"
+    set {_d::152} to "152|chat|Rare|Trivia: What blocks can you add around an enchanting table to boost levels?|bookshelves"
+    set {_d::153} to "153|chat|Rare|Unscramble this valuable exploration block structure: s_t_r_o_n_g_h_o_l_d&7!|stronghold"
+    set {_d::154} to "154|chat|Rare|Type this item crafted to locate a buried world stronghold: e_y_e_o_f_e_n_d_e_r&7!|eye of ender"
+    set {_d::155} to "155|chat|Rare|Trivia: What block type frames the active gateways into the end dimension?|end portal frame"
+    set {_d::156} to "156|chat|Rare|Unreverse this item needed to activate end frames: r_e_d_n_e_f_o_e_y_e&7!|eye of ender"
+    set {_d::157} to "157|chat|Rare|Solve this multiplication dynamic task line: 15 * 6&7!|90"
+    set {_d::158} to "158|chat|Rare|Trivia: What structure room contains libraries and ender portals down below?|stronghold"
+    set {_d::159} to "159|chat|Rare|Unscramble this dangerous silver infestation mob type: s_i_l_v_e_r_f_i_s_h&7!|silverfish"
+    set {_d::160} to "160|chat|Rare|Type this item framework that spawns silverfish endlessly: s_p_a_w_n_e_r&7!|spawner"
+    set {_d::161} to "161|chat|Rare|Trivia: How many active end portal frame blocks exist per standard room?|12"
+    set {_d::162} to "162|chat|Rare|Unreverse this stone variant block type found in fortresses: e_n_o_t_s_s_s_o_m&7!|mossy stone"
+    set {_d::163} to "163|chat|Rare|Solve this quick operational addition calculation: 350 + 150&7!|500"
+    set {_d::164} to "164|chat|Rare|Trivia: What standard item loot container spawns inside hidden altar rooms?|chest"
+    set {_d::165} to "165|chat|Rare|Unscramble this unique defensive fortress wall unit: i_r_o_n_b_a_r_s&7!|iron bars"
+    set {_d::166} to "166|chat|Rare|Type this classic structural block component: s_t_o_n_e_b_r_i_c_k_s&7!|stone bricks"
+    set {_d::167} to "167|chat|Rare|Trivia: What specialized villager job class works directly with brewing stands?|cleric"
+    set {_d::168} to "168|chat|Rare|Unreverse this dynamic trading workstation item block: n_r_e_t_c_e_l&7!|lectern"
+    set {_d::169} to "169|chat|Rare|Solve this subtraction arithmetic mental challenge: 650 - 120&7!|530"
+    set {_d::170} to "170|chat|Rare|Trivia: What workstation block type allows turning a villager into an armorer?|blast furnace"
+    set {_d::171} to "171|chat|Rare|Unscramble this classic farming workstation tool entity: s_m_i_t_h_i_n_g_t_a_b_l_e&7!|smithing table"
+    set {_d::172} to "172|chat|Rare|Type this unique trade unit currency block item: e_m_e_r_a_l_d_b_l_o_c_k&7!|emerald block"
+    set {_d::173} to "173|chat|Rare|Trivia: What primary weapon type do fletcher villagers sell to players?|bow"
+    set {_d::174} to "174|chat|Rare|Unreverse this processing tool block owned by stonemasons: r_e_t_t_u_c_e_n_o_t_s&7!|stonecutter"
+    set {_d::175} to "175|chat|Rare|Solve this quick double multiplication step line: 40 * 4&7!|160"
+    set {_d::176} to "176|chat|Rare|Trivia: What dynamic village event starts when a bad omen status triggers?|raid"
+    set {_d::177} to "177|chat|Rare|Unscramble this horn blowing raiding monster entity: r_a_v_a_g_e_r&7!|ravager"
+    set {_d::178} to "178|chat|Rare|Type this potion throwing raiding magical witch variant: w_i_t_c_h&7!|witch"
+    set {_d::179} to "179|chat|Rare|Trivia: What valuable safety item drops from vindicator or evoker mobs during raids?|totem of undying"
+    set {_d::180} to "180|chat|Rare|Unreverse this protective structure banner item type: r_e_n_n_a_b_r_e_g_a_l_l_i&7!|illager banner"
+    set {_d::181} to "181|chat|Rare|Solve this basic math sum dynamic value total: 450 + 450&7!|900"
+    set {_d::182} to "182|chat|Rare|Trivia: What beneficial status effect lowers villager trade costs after a raid?|hero of the village"
+    set {_d::183} to "183|chat|Rare|Unscramble this raiding mob type that summons vexes: e_v_o_k_e_r&7!|evoker"
+    set {_d::184} to "184|chat|Rare|Type this basic leather producing passive farm animal: c_o_w&7!|cow"
+    set {_d::185} to "185|chat|Rare|Trivia: What item can be milked from cows to completely clear active potion effects?|milk bucket"
+    set {_d::186} to "186|chat|Rare|Unreverse this farming field production tracking harvest plant: o_t_a_t_o_p&7!|potato"
+    set {_d::187} to "187|chat|Rare|Solve this triple digit standard equation: 999 - 111&7!|888"
+    set {_d::188} to "188|chat|Rare|Trivia: What item type is harvested to breed passive pet wolf entities?|bone"
+    set {_d::189} to "189|chat|Rare|Unscramble this common farming field seed product block: p_u_m_p_k_i_n&7!|pumpkin"
+    set {_d::190} to "190|chat|Rare|Type this item needed to craft a glowing jack o lantern: t_o_r_c_h&7!|torch"
+    set {_d::191} to "191|chat|Rare|Trivia: What block structure component is required to capture and breed bee mobs?|beehive"
+    set {_d::192} to "192|chat|Rare|Unreverse this sticky honey block production output resource: b_m_o_c_y_e_n_o_h&7!|honeycomb"
+    set {_d::193} to "193|chat|Rare|Solve this quick numeric division evaluation task: 200 / 4&7!|50"
+    set {_d::194} to "194|chat|Rare|Trivia: What friendly creature cross pollinates crop fields and collects nectar?|bee"
+    set {_d::195} to "195|chat|Rare|Unscramble this targeted automation item wire sensor: d_a_y_l_i_g_h_t_d_e_t_e_c_t_o_r&7!|daylight detector"
+    set {_d::196} to "196|chat|Rare|Type this functional utility block utilized to change spawn points: b_e_d&7!|bed"
+    set {_d::197} to "197|chat|Rare|Trivia: What rare structural item stops phantoms from spawning at night?|bed"
+    set {_d::198} to "198|chat|Rare|Unreverse this flying monster item drop resource: e_n_a_r_b_m_e_m_m_o_t_n_a_h_p&7!|phantom membrane"
+    set {_d::199} to "199|chat|Rare|Solve this mental math challenge step formula: 150 * 2&7!|300"
+    set {_d::200} to "200|chat|Rare|Trivia: What tool is utilized to alter or smooth out copper block oxidation states?|axe"
+    loop {_d::*}:
+        set {_s::*} to loop-value split at "|"
+        set {-amc::games::%{_s::1}%::type} to {_s::2}
+        set {-amc::games::%{_s::1}%::diff} to {_s::3}
+        set {-amc::games::%{_s::1}%::quest} to {_s::4}
+        set {-amc::games::%{_s::1}%::ans} to {_s::5}
+        add 1 to {-amc::total_loaded}
+function amc_init_database_3():
+    set {_d::201} to "201|chat|Legendary|Unreverse this end city block element: k_c_o_l_b_r_u_p_r_u_p&7!|purpur block"
+    set {_d::202} to "202|chat|Legendary|Type this end city defense mob name immediately: s_h_u_l_k_e_r&7!|shulker"
+    set {_d::203} to "203|chat|Legendary|Unscramble this flying transport armor wing item: e_l_y_t_r_a&7!|elytra"
+    set {_d::204} to "204|chat|Legendary|Trivia: What specific rare item material allows weapons to float in lava?|netherite"
+    set {_d::205} to "205|chat|Legendary|Trivia: What rare block requires a nether star item to assemble?|beacon"
+    set {_d::206} to "206|chat|Legendary|Unscramble this boss summoning target item block: s_o_u_l_s_o_i_l&7!|soul soil"
+    set {_d::207} to "207|chat|Legendary|Solve this quick double multiplication line: 12 * 12&7!|144"
+    set {_d::208} to "208|chat|Legendary|Trivia: What is considered the rarest naturally occurring trophy item in minecraft?|dragon egg"
+    set {_d::209} to "209|chat|Legendary|Unreverse this powerful structural dynamic block: m_e_t_o_t&7!|totem"
+    set {_d::210} to "210|chat|Legendary|Type this processing table used for high tier tool upgrades: s_m_i_t_h_i_n_g_t_a_b_l_e&7!|smithing table"
+    set {_d::211} to "211|chat|Legendary|Trivia: What specific boss entity possesses exactly three heads and shoots wither skulls?|wither"
+    set {_d::212} to "212|chat|Legendary|Unscramble this special valuable golden apple: e_n_c_h_a_n_t_e_d&7!|enchanted"
+    set {_d::213} to "213|chat|Legendary|Trivia: What status modifier gives you extra hearts after eating an enchanted apple?|absorption"
+    set {_d::214} to "214|chat|Legendary|Type this item drop dropped exclusively from shulker box entities: s_h_u_l_k_e_r_s_h_e_l_l&7!|shulker shell"
+    set {_d::215} to "215|chat|Legendary|Unreverse this explosive dragon fight crystal object: l_a_t_s_y_r_c_d_n_e&7!|end crystal"
+    set {_d::216} to "216|chat|Legendary|Trivia: What specific obsidian structure blocks shield ender crystals during the boss fight?|obsidian pillars"
+    set {_d::217} to "217|chat|Legendary|Solve this mathematical square root challenge: 9 * 9&7!|81"
+    set {_d::218} to "218|chat|Legendary|Unscramble this endgame structural plant name: c_h_o_r_u_s_f_l_o_w_e_r&7!|chorus flower"
+    set {_d::219} to "219|chat|Legendary|Trivia: What structural plant item drops teleportation food fruits when broken down?|chorus plant"
+    set {_d::220} to "220|chat|Legendary|Type this decorative rare structural block lighting element: e_n_d_r_o_d&7!|end rod"
+    set {_d::221} to "221|chat|Legendary|Unreverse this rare ocean mining elder guardian drops: e_g_n_o_p_s&7!|sponge"
+    set {_d::222} to "222|chat|Legendary|Trivia: What rare functional beacon baseline block requires nine emerald items to craft?|emerald block"
+    set {_d::223} to "223|chat|Legendary|Unscramble this high tier decorative armor block ingredient: d_i_a_m_o_n_d_b_l_o_c_k&7!|diamond block"
+    set {_d::224} to "224|chat|Legendary|Solve this complex multiple operation equation string: 25 * 4&7!|100"
+    set {_d::225} to "225|chat|Legendary|Type this dark structural stone layer generating at the bottom of worlds: b_e_d_r_o_c_k&7!|bedrock"
+    set {_d::226} to "226|chat|Legendary|Trivia: What is the maximum beacon upgrade stage level height limit achievable?|4"
+    set {_d::227} to "227|chat|Legendary|Unreverse this special redstone block object item: r_e_v_r_e_s_b_o&7!|observer"
+    set {_d::228} to "228|chat|Legendary|Trivia: What specific structure contains elytra ships and shulker boxes inside the end?|end city"
+    set {_d::229} to "229|chat|Legendary|Unscramble this special arrow type tracking property: s_p_e_c_t_r_a_l&7!|spectral"
+    set {_d::230} to "230|chat|Legendary|Type this unique weapon ammunition type made using dragons breath: l_i_n_g_e_r_i_n_g_p_o_t_i_o_n&7!|lingering potion"
+    set {_d::231} to "231|chat|Legendary|Solve this multi variable logic arithmetic sum: 150 * 3&7!|450"
+    set {_d::232} to "232|chat|Legendary|Trivia: What special block element redirects redstone pulses around curves cleanly?|redstone repeater"
+    set {_d::233} to "233|chat|Legendary|Unreverse this structural sorting hopper block element: r_e_p_p_o_h&7!|hopper"
+    set {_d::234} to "234|chat|Legendary|Trivia: What block structure processes cobblestone into smooth clean stone variants?|furnace"
+    set {_d::235} to "235|chat|Legendary|Unscramble this specialized minecart track booster rail unit: a_c_t_i_v_a_t_o_r&7!|activator"
+    set {_d::236} to "236|chat|Legendary|Type this rare exploration structure target found in deep dark woods: w_o_o_d_l_a_n_d_m_a_n_s_i_o_n&7!|woodland mansion"
+    set {_d::237} to "237|chat|Legendary|Trivia: Which rare illager variant mob shoots dangerous vex spirits out through axes?|evoker"
+    set {_d::238} to "238|chat|Legendary|Unreverse this hidden treasure structure locator object: p_a_m_e_r_u_s_a_e_r_t&7!|treasure map"
+    set {_d::239} to "239|chat|Legendary|Solve this long double subtraction logic string: 1000 - 350&7!|650"
+    set {_d::240} to "240|chat|Legendary|Trivia: What decorative structural item frame holds item blocks on wall structures?|item frame"
+    set {_d::241} to "241|chat|Legendary|Unscramble this unique custom player server tool asset: c_a_p_e&7!|cape"
+    set {_d::242} to "242|chat|Legendary|Type this specific redstone gate logic block item name: c_o_m_p_a_r_a_t_o_r&7!|comparator"
+    set {_d::243} to "243|chat|Legendary|Trivia: What material block type slows down entity movements drastically when walked on?|soul sand"
+    set {_d::244} to "244|chat|Legendary|Unreverse this specialized armor repair station unit: l_i_v_n_a&7!|anvil"
+    set {_d::245} to "245|chat|Legendary|Solve this triple value variable product statement: 20 * 20&7!|400"
+    set {_d::246} to "246|chat|Legendary|Trivia: What block type functions as the direct source requirement to trigger conduits?|prismarine"
+    set {_d::247} to "247|chat|Legendary|Unscramble this special underwater base structure framework: c_o_n_d_u_i_t&7!|conduit"
+    set {_d::248} to "248|chat|Legendary|Type this light source generating block made from sea lanterns: s_e_a_l_a_n_t_e_r_n&7!|sea lantern"
+    set {_d::249} to "249|chat|Legendary|Trivia: What status condition makes players mine block structures incredibly slow underwater?|mining fatigue"
+    set {_d::250} to "250|chat|Legendary|Unreverse this specific ocean monument mini boss creature: e_l_d_e_r_g_u_a_r_d_i_a_n&7!|elder guardian"
+    set {_d::251} to "251|chat|Legendary|Solve this rapid operational numeric logic: 700 + 250&7!|950"
+    set {_d::252} to "252|chat|Legendary|Trivia: What weapon enchantment allows launching high through water levels?|riptide"
+    set {_d::253} to "253|chat|Legendary|Unscramble this rare ocean structural block name: p_r_i_s_m_a_r_i_n_e&7!|prismarine"
+    set {_d::254} to "254|chat|Legendary|Type this material gathered by smelting ancient debris: n_e_t_h_e_r_i_t_e_s_c_r_a_p&7!|netherite scrap"
+    set {_d::255} to "255|chat|Legendary|Trivia: How many netherite scraps items are needed to produce one netherite ingot?|4"
+    set {_d::256} to "256|chat|Legendary|Unreverse this ancient debris mining exploration layer target: s_i_r_b_e_d_t_n_e_i_c_n_a&7!|ancient debris"
+    set {_d::257} to "257|chat|Legendary|Solve this mathematical balance formula equation: 11 * 11&7!|121"
+    set {_d::258} to "258|chat|Legendary|Trivia: What specific tool structure upgrades diamond gear items into netherite gear?|smithing table"
+    set {_d::259} to "259|chat|Legendary|Unscramble this special gold trading nether mob target: b_a_s_t_i_o_n&7!|bastion"
+    set {_d::260} to "260|chat|Legendary|Type this massive aggressive brute piglin variant found in bastions: p_i_g_l_i_n_b_r_u_t_e&7!|piglin brute"
+    set {_d::261} to "261|chat|Legendary|Trivia: What specific block type do piglin brutes protect inside bastion structures?|gold block"
+    set {_d::262} to "262|chat|Legendary|Unreverse this special nether stone building material block: e_n_o_t_s_k_c_a_l_b&7!|blackstone"
+    set {_d::263} to "263|chat|Legendary|Solve this double calculation product statement: 60 * 6&7!|360"
+    set {_d::264} to "264|chat|Legendary|Trivia: What sound tracking device blocks spawn naturally in deep dark biomes?|sculk sensor"
+    set {_d::265} to "265|chat|Legendary|Unscramble this blind underground boss creature entity: w_a_r_d_e_n&7!|warden"
+    set {_d::266} to "266|chat|Legendary|Type this structural biome target where wardens protect chests: d_e_e_p_d_a_r_k&7!|deep dark"
+    set {_d::267} to "267|chat|Legendary|Trivia: What structural block triggers a warden spawn if activated multiple times?|sculk shrieker"
+    set {_d::268} to "268|chat|Legendary|Unreverse this dark effect status applied by wardens: s_s_e_n_k_r_a_d&7!|darkness"
+    set {_d::269} to "269|chat|Legendary|Solve this subtraction arithmetic mental formula: 850 - 450&7!|400"
+    set {_d::270} to "270|chat|Legendary|Trivia: What ranged attack format does the warden use to blast through walls?|sonic boom"
+    set {_d::271} to "271|chat|Legendary|Unscramble this special music item found inside ancient cities: d_i_s_c_f_r_a_g_m_e_n_t&7!|disc fragment"
+    set {_d::272} to "272|chat|Legendary|Type this rare material block found inside structure portals: r_e_i_n_f_o_r_c_e_d_d_e_e_p_s_l_a_t_e&7!|reinforced deepslate"
+    set {_d::273} to "273|chat|Legendary|Trivia: Can a standard netherite pickaxe mine reinforced deepslate blocks?|no"
+    set {_d::274} to "274|chat|Legendary|Unreverse this custom material asset target: e_t_a_l_s_p_e_e_d&7!|deepslate"
+    set {_d::275} to "275|chat|Legendary|Solve this quick mathematical product value equation: 900 / 3&7!|300"
+    set {_d::276} to "276|chat|Legendary|Trivia: What item can be combined with copper blocks to stop oxidation?|honeycomb"
+    set {_d::277} to "277|chat|Legendary|Unscramble this unique target structural mapping block: l_o_d_e_s_t_o_n_e&7!|lodestone"
+    set {_d::278} to "278|chat|Legendary|Type this processing utility structure that blends patterns onto banners: l_o_o_m&7!|loom"
+    set {_d::279} to "279|chat|Legendary|Trivia: What standard block structure item requires three strings and three wooden sticks?|bow"
+    set {_d::280} to "280|chat|Legendary|Unreverse this flying passive structural tracking mob entity: y_a_l_l_a&7!|allay"
+    set {_d::281} to "281|chat|Legendary|Solve this double sum strategic computation formula: 444 + 444&7!|888"
+    set {_d::282} to "282|chat|Legendary|Trivia: What organic target item block makes allay mobs dance and duplicate?|jukebox"
+    set {_d::283} to "283|chat|Legendary|Unscramble this massive structural exploration tower base: o_u_t_p_o_s_t&7!|outpost"
+    set {_d::284} to "284|chat|Legendary|Type this special village weapon item handled by pillager captains: c_r_o_s_s_b_o_w&7!|crossbow"
+    set {_d::285} to "285|chat|Legendary|Trivia: What specific status effect triggers when you defeat a patrol leader?|bad omen"
+    set {_d::286} to "286|chat|Legendary|Unreverse this structural iron item used to hold fluids: n_o_r_d_l_u_a_c&7!|cauldron"
+    set {_d::287} to "287|chat|Legendary|Solve this multiple operation mental check step: 13 * 3&7!|39"
+    set {_d::288} to "288|chat|Legendary|Trivia: What potion type requires a golden carrot item to brew successfully?|night vision"
+    set {_d::289} to "289|chat|Legendary|Unscramble this special base potion modification ingredient: f_e_r_m_e_n_t_e_d_s_p_i_d_e_r_e_y_e&7!|fermented spider eye"
+    set {_d::290} to "290|chat|Legendary|Type this base potion ingredient block found on magma seas: g_h_a_s_t_t_e_a_r&7!|ghast tear"
+    set {_d::291} to "291|chat|Legendary|Trivia: What potion variant is engineered using phantom membrane drops?|slow falling"
+    set {_d::292} to "292|chat|Legendary|Unreverse this quick speed boosting brewing modifier potion: n_o_i_t_o_p_s_s_e_n_t_f_i_w_s&7!|swiftness potion"
+    set {_d::293} to "293|chat|Legendary|Solve this numeric triple level operational calculation: 1000 - 650&7!|350"
+    set {_d::294} to "294|chat|Legendary|Trivia: What modifying item increases potion strength configurations to level two?|glowstone dust"
+    set {_d::295} to "295|chat|Legendary|Unscramble this time extending potion brewing dust element: r_e_d_s_t_o_n_e_d_u_s_t&7!|redstone dust"
+    set {_d::296} to "296|chat|Legendary|Type this primary framework used to throw splash potion streams: g_u_n_p_o_w_d_e_r&7!|gunpowder"
+    set {_d::297} to "297|chat|Legendary|Trivia: What direct opposite base status effect is produced by corrupting a healing potion?|harming"
+    set {_d::298} to "298|chat|Legendary|Unreverse this unique target structural tool framework: d_n_a_t_s_g_n_i_w_e_r_b&7!|brewing stand"
+    set {_d::299} to "299|chat|Legendary|Solve this advanced math product line total check: 80 * 5&7!|400"
+    set {_d::300} to "300|chat|Legendary|Trivia: What specific item acts as fuel source to keep brewing stands running?|blaze powder"
+    loop {_d::*}:
+        set {_s::*} to loop-value split at "|"
+        set {-amc::games::%{_s::1}%::type} to {_s::2}
+        set {-amc::games::%{_s::1}%::diff} to {_s::3}
+        set {-amc::games::%{_s::1}%::quest} to {_s::4}
+        set {-amc::games::%{_s::1}%::ans} to {_s::5}
+        add 1 to {-amc::total_loaded}
+function amc_init_database_4():
+    set {_d::301} to "301|chat|Rare|Unreverse this farming plant name: r_e_w_o_l_f_n_u_s&7!|sunflower"
+    set {_d::302} to "302|chat|Rare|Type this fast mining deep subterranean tool asset: i_r_o_n_p_i_c_k_a_x_e&7!|iron pickaxe"
+    set {_d::303} to "303|chat|Rare|Unscramble this ocean monument block structure item: d_a_r_k_p_r_i_s_m_a_r_i_n_e&7!|dark prismarine"
+    set {_d::304} to "304|chat|Rare|Trivia: What specific tool block type turns a villager into a standard weaponsmith?|grindstone"
+    set {_d::305} to "305|chat|Rare|Trivia: What structural block type allows players to cut stone variants instantly?|stonecutter"
+    set {_d::306} to "306|chat|Rare|Unscramble this processing block found in villages: s_m_o_k_e_r&7!|smoker"
+    set {_d::307} to "307|chat|Rare|Solve this quick mathematical math addition check: 240 + 160&7!|400"
+    set {_d::308} to "308|chat|Rare|Trivia: What unique villager job type works directly with fletching tables?|fletcher"
+    set {_d::309} to "309|chat|Rare|Unreverse this target village protective defense entity: m_e_l_o_g_n_o_r_i&7!|iron golem"
+    set {_d::310} to "310|chat|Rare|Type this target block utilized to breed villager children: b_e_d&7!|bed"
+    set {_d::311} to "311|chat|Rare|Trivia: What specific item material do iron golems drop rarely when defeated?|iron ingot"
+    set {_d::312} to "312|chat|Rare|Unscramble this hostile village attacking faction monster: p_i_l_l_a_g_e_r&7!|pillager"
+    set {_d::313} to "313|chat|Rare|Trivia: What structural block type alerts all nearby villagers of an incoming raid?|bell"
+    set {_d::314} to "314|chat|Rare|Type this item dropped uniquely by vindicator target mobs: i_r_o_n_a_x_e&7!|iron axe"
+    set {_d::315} to "315|chat|Rare|Unreverse this rare magical item dropped during raids: m_e_t_o_t&7!|totem"
+    set {_d::316} to "316|chat|Rare|Trivia: What specific wood variant grows naturally within jungle forest biomes?|jungle wood"
+    set {_d::317} to "317|chat|Rare|Solve this complex multiple operation equation string: 450 - 225&7!|225"
+    set {_d::318} to "318|chat|Rare|Unscramble this useful tracking item tool asset: c_o_m_p_a_s_s&7!|compass"
+    set {_d::319} to "319|chat|Rare|Trivia: What organic resource do players collect from destroying dark oak leaves blocks?|apple"
+    set {_d::320} to "320|chat|Rare|Type this plant item type that propagates inside swamp lakes: l_i_l_y_p_a_d&7!|lily pad"
+    set {_d::321} to "321|chat|Rare|Unreverse this defensive building stone block item: e_n_o_t_s_b_b_o_c&7!|cobblestone"
+    set {_d::322} to "322|chat|Rare|Trivia: What specific liquid source block is required to grow sugar cane crops?|water"
+    set {_d::323} to "323|chat|Rare|Unscramble this unique underground abandoned transport rail: m_i_n_e_s_h_a_f_t&7!|mineshaft"
+    set {_d::324} to "324|chat|Rare|Solve this quick mathematical product value equation: 80 * 4&7!|320"
+    set {_d::325} to "325|chat|Rare|Type this custom processing block structure component: c_o_m_p_o_s_t_e_r&7!|composter"
+    set {_d::326} to "326|chat|Rare|Trivia: What specific material tool can safely retrieve a whole glass block?|silk touch"
+    set {_d::327} to "327|chat|Rare|Unreverse this dark block material native to oceans: k_c_o_l_b_l_a_o_c&7!|coal block"
+    set {_d::328} to "328|chat|Rare|Which specific tool device allows players to shear wool from sheep?|shears"
+    set {_d::329} to "329|chat|Rare|Unscramble this subterranean crystal cluster resource item: a_m_e_t_h_y_s_t&7!|amethyst"
+    set {_d::330} to "330|chat|Rare|Type this item crafted utilizing three raw paper items and leather: b_o_o_k&7!|book"
+    set {_d::331} to "331|chat|Rare|Solve this double calculation product statement: 120 + 380&7!|500"
+    set {_d::332} to "332|chat|Rare|Trivia: What specific block structural component forces water streams to flow upward?|soul sand"
+    set {_d::333} to "333|chat|Rare|Unreverse this ocean item component used for beacons: s_s_a_l_g&7!|glass"
+    set {_d::334} to "334|chat|Rare|Trivia: What block structure items can be used to hold multiple books?|bookshelf"
+    set {_d::335} to "335|chat|Rare|Unscramble this automation sensor block: o_b_s_e_r_v_e_r&7!|observer"
+    set {_d::336} to "336|chat|Rare|Type this redstone wiring circuit modifier piece: r_e_p_e_a_t_e_r&7!|repeater"
+    set {_d::337} to "337|chat|Rare|Trivia: What specific item block provides signals based on day and night cycles?|daylight detector"
+    set {_d::338} to "338|chat|Rare|Unreverse this protective wall security component: s_r_a_b_n_o_r_i&7!|iron bars"
+    set {_d::339} to "339|chat|Rare|Solve this intermediate subtraction sequence string: 750 - 350&7!|400"
+    set {_d::340} to "340|chat|Rare|Trivia: What tool item handles standard banner pattern manipulation procedures?|loom"
+    set {_d::341} to "341|chat|Rare|Unscramble this unique underground base room asset: d_u_n_g_e_o_n&7!|dungeon"
+    set {_d::342} to "342|chat|Rare|Type this valuable underground resource element item: l_a_p_i_s_l_a_z_u_l_i&7!|lapis lazuli"
+    set {_d::343} to "343|chat|Rare|Trivia: What specific item type functions as fuel inside brewing stands?|blaze powder"
+    set {_d::344} to "344|chat|Rare|Unreverse this specific nether fortress item asset: d_o_r_e_z_a_l_b&7!|blaze rod"
+    set {_d::345} to "345|chat|Rare|Solve this long double operation math process: 14 * 5&7!|70"
+    set {_d::346} to "346|chat|Rare|Trivia: Which specific tool tier mines obsidian blocks successfully?|diamond pickaxe"
+    set {_d::347} to "347|chat|Rare|Unscramble this structural base transport unit: m_i_n_e_c_a_r_t&7!|minecart"
+    set {_d::348} to "348|chat|Rare|Type this item needed to craft advanced powered rails: s_t_i_c_k&7!|stick"
+    set {_d::349} to "349|chat|Rare|Trivia: What block type drops a music disc item if killed by a skeleton?|creeper"
+    set {_d::350} to "350|chat|Rare|Unreverse this high speed redstone line component: l_i_a_r_r_e_w_o_p&7!|powered rail"
+    set {_d::351} to "351|chat|Rare|Solve this strategic computation sum total check: 620 + 180&7!|800"
+    set {_d::352} to "352|chat|Rare|Trivia: What block type provides the maximum possible light value emission?|glowstone"
+    set {_d::353} to "353|chat|Rare|Unscramble this deep cave stone layer block element: d_e_e_p_s_l_a_t_e&7!|deepslate"
+    set {_d::354} to "354|chat|Rare|Type this structural barrier that closes vertically using redstone: i_r_o_n_d_o_o_r&7!|iron door"
+    set {_d::355} to "355|chat|Rare|Trivia: How many iron nuggets items are acquired from smelting an iron tool?|1"
+    set {_d::356} to "356|chat|Rare|Unreverse this light resource crafted using gold pieces: n_r_e_t_n_a_l&7!|lantern"
+    set {_d::357} to "357|chat|Rare|Solve this mathematical balance formula check: 90 * 5&7!|450"
+    set {_d::358} to "358|chat|Rare|Trivia: What tool structure item is utilized to name weapons uniquely?|anvil"
+    set {_d::359} to "359|chat|Rare|Unscramble this valuable nether gold trading base target: p_i_g_l_i_n&7!|piglin"
+    set {_d::360} to "360|chat|Rare|Type this dynamic nether biome covered in blue plant matter: w_a_r_p_e_d_f_o_r_e_s_t&7!|warped forest"
+    set {_d::361} to "361|chat|Rare|Trivia: What block item type explodes when interacted with inside the nether?|bed"
+    set {_d::362} to "362|chat|Rare|Unreverse this structural item dropped by hoglins: r_e_h_t_a_e_l&7!|leather"
+    set {_d::363} to "363|chat|Rare|Solve this mental math product step process: 15 * 5&7!|75"
+    set {_d::364} to "364|chat|Rare|Trivia: What specific item can turn a regular wolf into a tamed dog?|bone"
+    set {_d::365} to "365|chat|Rare|Unscramble this swamp biome structure base asset: w_i_t_c_h_h_u_t&7!|witch hut"
+    set {_d::366} to "366|chat|Rare|Type this item harvested to create light blue dyes instantly: b_l_u_e_o_r_c_h_i_d&7!|blue orchid"
+    set {_d::367} to "367|chat|Rare|Trivia: What passive farm animal tracks and consumes sweet berry bushes?|fox"
+    set {_d::368} to "368|chat|Rare|Unreverse this cold snow biome exploration hazard block: e_c_i_d_e_k_c_a_p&7!|packed ice"
+    set {_d::369} to "369|chat|Rare|Solve this subtraction balance tracking formula check: 880 - 180&7!|700"
+    set {_d::370} to "370|chat|Rare|Trivia: What weapon variant damages targets from long distance structures efficiently?|crossbow"
+    set {_d::371} to "371|chat|Rare|Unscramble this desert pyramid trap explosive block: t_n_t&7!|tnt"
+    set {_d::372} to "372|chat|Rare|Type this structural dynamic utility used to craft maps: c_a_r_t_o_g_r_a_p_h_y_t_a_b_l_e&7!|cartography table"
+    set {_d::373} to "373|chat|Rare|Trivia: What item material matches the base components of a lead?|string"
+    set {_d::374} to "374|chat|Rare|Unreverse this farming harvest field crop entity: o_t_a_t_o_p&7!|potato"
+    set {_d::375} to "375|chat|Rare|Solve this numeric double operation step formula: 60 * 3&7!|180"
+    set {_d::376} to "376|chat|Rare|Trivia: What status effect makes players deal significantly more melee hit damage?|strength"
+    set {_d::377} to "377|chat|Rare|Unscramble this rare ocean structure loot block: s_p_o_n_g_e&7!|sponge"
+    set {_d::378} to "378|chat|Rare|Type this specialized tool item used to retrieve water: b_u_c_k_e_t&7!|bucket"
+    set {_d::379} to "379|chat|Rare|Trivia: What functional block structure processes sand into smooth glass?|furnace"
+    set {_d::380} to "380|chat|Rare|Unreverse this precious underground mining ore block: d_n_o_m_a_i_d&7!|diamond"
+    set {_d::381} to "381|chat|Rare|Solve this simple mathematical sum total check: 510 + 290&7!|800"
+    set {_d::382} to "382|chat|Rare|Trivia: What specific item type stops phantoms from flying at night?|bed"
+    set {_d::383} to "383|chat|Rare|Unscramble this functional base wiring asset: r_e_d_s_t_o_n_e&7!|redstone"
+    set {_d::384} to "384|chat|Rare|Type this hostile cave mob that inflicts poison damage: c_a_v_e_s_p_i_d_e_r&7!|cave spider"
+    set {_d::385} to "385|chat|Rare|Trivia: What tool enchantment yields extra item outputs from farm crops?|fortune"
+    set {_d::386} to "386|chat|Rare|Unreverse this stone structural wall panel variant: s_k_c_i_r_b&7!|bricks"
+    set {_d::387} to "387|chat|Rare|Solve this double digit math operational sequence: 990 - 440&7!|550"
+    set {_d::388} to "388|chat|Rare|Trivia: What food resource block is obtained from harvesting mature carrots?|carrot"
+    set {_d::389} to "389|chat|Rare|Unscramble this common passive base farming animal: s_h_e_e_p&7!|sheep"
+    set {_d::390} to "390|chat|Rare|Type this protective block framework element item: f_e_n_c_e&7!|fence"
+    set {_d::391} to "391|chat|Rare|Trivia: What material block allows players to clear deep water pockets?|sponge"
+    set {_d::392} to "392|chat|Rare|Unreverse this light generating block frame item: h_c_r_o_t&7!|torch"
+    set {_d::393} to "393|chat|Rare|Solve this multiplication operational logic challenge: 13 * 4&7!|52"
+    set {_d::394} to "394|chat|Rare|Trivia: What specific friendly creature creates honey inside hives?|bee"
+    set {_d::395} to "395|chat|Rare|Unscramble this dynamic processing tool unit: h_o_p_p_e_r&7!|hopper"
+    set {_d::396} to "396|chat|Rare|Type this item crafted using sticks and coal blocks: t_o_r_c_h&7!|torch"
+    set {_d::397} to "397|chat|Rare|Trivia: What hostile mob burns when exposed to sunlight beams?|zombie"
+    set {_d::398} to "398|chat|Rare|Unreverse this base building resource tree type: k_a_o&7!|oak"
+    set {_d::399} to "399|chat|Rare|Solve this quick division operation balance: 400 / 5&7!|80"
+    set {_d::400} to "400|chat|Rare|Trivia: What item type is best used to safely tame wild ocelots?|raw fish"
+    loop {_d::*}:
+        set {_s::*} to loop-value split at "|"
+        set {-amc::games::%{_s::1}%::type} to {_s::2}
+        set {-amc::games::%{_s::1}%::diff} to {_s::3}
+        set {-amc::games::%{_s::1}%::quest} to {_s::4}
+        set {-amc::games::%{_s::1}%::ans} to {_s::5}
+        add 1 to {-amc::total_loaded}
+function amc_init_database_5():
+    set {_d::401} to "401|chat|Legendary|Unreverse this dragon drop target: h_t_a_e_r_b_s_n_o_g_a_r_d&7!|dragons breath"
+    set {_d::402} to "402|chat|Legendary|Type this deep sea beacon item instantly: s_e_a_l_a_n_t_e_r_n&7!|sea lantern"
+    set {_d::403} to "403|chat|Legendary|Unscramble this high tier brewing mineral: b_l_a_z_e_p_o_w_d_e_r&7!|blaze powder"
+    set {_d::404} to "404|chat|Legendary|Trivia: What specific item must be thrown to teleport across gaps manually?|ender pearl"
+    set {_d::405} to "405|chat|Legendary|Trivia: What structural block contains exactly nine item slots and drops items automatically?|dropper"
+    set {_d::406} to "406|chat|Legendary|Unscramble this nether star display element: b_e_a_c_o_n&7!|beacon"
+    set {_d::407} to "407|chat|Legendary|Solve this quick high value calculation: 600 * 2&7!|1200"
+    set {_d::408} to "408|chat|Legendary|Trivia: What rare enchantment protects armor pieces from exploding out entirely?|blast protection"
+    set {_d::409} to "409|chat|Legendary|Unreverse this end crystal base material block: n_a_i_d_i_s_b_o&7!|obsidian"
+    set {_d::410} to "410|chat|Legendary|Type this rare exploration structure target found in ice deserts: i_g_l_o_o&7!|igloo"
+    set {_d::411} to "411|chat|Legendary|Trivia: What specific block type emits redstone charge signals continuously?|redstone block"
+    set {_d::412} to "412|chat|Legendary|Unscramble this rare structure trap wire activator: t_r_i_p_w_i_r_e&7!|tripwire"
+    set {_d::413} to "413|chat|Legendary|Trivia: What unique villager profession operates using cartography tables?|cartographer"
+    set {_d::414} to "414|chat|Legendary|Type this special arrow type that highlights targets: s_p_e_c_t_r_a_l_a_r_r_o_w&7!|spectral arrow"
+    set {_d::415} to "415|chat|Legendary|Unreverse this structural transportation rail element: r_o_t_a_v_i_t_c_a&7!|activator"
+    set {_d::416} to "416|chat|Legendary|Trivia: What specific potion base is brewed using only spider eyes?|poison potion"
+    set {_d::417} to "417|chat|Legendary|Solve this complex multiple operation equation string: 140 * 5&7!|700"
+    set {_d::418} to "418|chat|Legendary|Unscramble this ocean biome structural mapping point: s_h_i_p_w_r_e_c_k&7!|shipwreck"
+    set {_d::419} to "419|chat|Legendary|Trivia: What explosive trap component sits hidden below desert temples?|tnt"
+    set {_d::420} to "420|chat|Legendary|Type this specific deep cavern fluid source block: l_a_v_a&7!|lava"
+    set {_d::421} to "421|chat|Legendary|Unreverse this high tier combat sword enchantment modifier: g_n_i_p_e_e_w_s&7!|sweeping edge"
+    set {_d::422} to "422|chat|Legendary|Trivia: Which specific tool allows pulling items across ocean distances automatically?|fishing rod"
+    set {_d::423} to "423|chat|Legendary|Unscramble this advanced redstone pulse checking sensor: c_o_m_p_a_r_a_t_o_r&7!|comparator"
+    set {_d::424} to "424|chat|Legendary|Solve this quick mathematical product value equation: 900 / 9&7!|100"
+    set {_d::425} to "425|chat|Legendary|Type this specific deep sea mob name instantly: e_l_d_e_r_g_u_a_r_d_i_a_n&7!|elder guardian"
+    set {_d::426} to "426|chat|Legendary|Trivia: What block type drops quartz crystals when mined inside the nether?|nether quartz ore"
+    set {_d::427} to "427|chat|Legendary|Unreverse this precious crafting ingredient item: t_e_g_n_i_d_l_o_g&7!|gold ingot"
+    set {_d::428} to "428|chat|Legendary|Trivia: Which unique underworld boss configuration drops a nether star item?|wither"
+    set {_d::429} to "429|chat|Legendary|Unscramble this unique custom player server tool asset: b_a_n_n_e_r&7!|banner"
+    set {_d::430} to "430|chat|Legendary|Type this status effect granted by golden apples: r_e_g_e_n_e_r_a_t_i_o_n&7!|regeneration"
+    set {_d::431} to "431|chat|Legendary|Solve this triple value calculation: 250 + 250 + 250&7!|750"
+    set {_d::432} to "432|chat|Legendary|Trivia: What structure room houses libraries inside hidden strongholds?|library"
+    set {_d::433} to "433|chat|Legendary|Unreverse this deep dark cavern tracking sensor: k_l_u_c_s&7!|sculk"
+    set {_d::434} to "434|chat|Legendary|Trivia: What block structure component activates redstone lines using arrows?|target block"
+    set {_d::435} to "435|chat|Legendary|Unscramble this specialized gear enchantment trait: s_i_l_k_t_o_u_c_h&7!|silk touch"
+    set {_d::436} to "436|chat|Legendary|Type this high tier weapon enchantment name right now: f_i_r_e_a_s_p_e_c_t&7!|fire aspect"
+    set {_d::437} to "437|chat|Legendary|Trivia: What tool enchantment item yields maximum diamond drops from ore?|fortune"
+    set {_d::438} to "438|chat|Legendary|Unreverse this unique block mining speed modifier: y_c_n_e_i_c_i_f_f_e&7!|efficiency"
+    set {_d::439} to "439|chat|Legendary|Solve this advanced subtraction string sequence: 1000 - 450&7!|550"
+    set {_d::440} to "440|chat|Legendary|Trivia: What enchantment increases overall physical damage output against spiders?|bane of arthropods"
+    set {_d::441} to "441|chat|Legendary|Unscramble this valuable nether mining tool resource: a_n_c_i_e_n_t_d_e_b_r_i_s&7!|ancient debris"
+    set {_d::442} to "442|chat|Legendary|Type this weapon property that damages entire rows of mobs: s_w_e_e_p_i_n_g&7!|sweeping"
+    set {_d::443} to "443|chat|Legendary|Trivia: What armor weapon enchantment provides standard damage reduction properties?|protection"
+    set {_d::444} to "444|chat|Legendary|Unreverse this dynamic projectile modification enchant: g_n_i_c_r_e_i_p&7!|piercing"
+    set {_d::445} to "445|chat|Legendary|Solve this multi variable equation process: 70 * 8&7!|560"
+    set {_d::446} to "446|chat|Legendary|Trivia: Which specific tool modifier allows launching players into rainy skies?|riptide"
+    set {_d::447} to "447|chat|Legendary|Unscramble this swift aquatic footgear armor enchantment: s_o_u_l_s_p_e_e_d&7!|soul speed"
+    set {_d::448} to "448|chat|Legendary|Type this defense trait reducing environmental explosion impact: b_l_a_s_t_p_r_o_t_e_c_t_i_o_n&7!|blast protection"
+    set {_d::449} to "449|chat|Legendary|Trivia: What armor modifier causes players to crouch walk faster?|swift sneak"
+    set {_d::450} to "450|chat|Legendary|Unreverse this chest enchantment variant that locks to death slots: g_n_id_n_i_b_f_o_e_s_r_u_c&7!|curse of binding"
+    set {_d::451} to "451|chat|Legendary|Solve this mathematical balance formula equation: 1200 - 350&7!|850"
+    set {_d::452} to "452|chat|Legendary|Trivia: What blocks can you add around an enchanting table to boost levels?|bookshelves"
+    set {_d::453} to "453|chat|Legendary|Unscramble this valuable exploration block structure: a_n_c_i_e_n_t_c_i_t_y&7!|ancient city"
+    set {_d::454} to "454|chat|Legendary|Type this item crafted to track target ender gateways cleanly: e_y_e_o_f_e_n_d_e_r&7!|eye of ender"
+    set {_d::455} to "455|chat|Legendary|Trivia: What block type frames active portal gateways to end biomes?|end portal frame"
+    set {_d::456} to "456|chat|Legendary|Unreverse this item needed to activate gateway frames: r_e_d_n_e_f_o_e_y_e&7!|eye of ender"
+    set {_d::457} to "457|chat|Legendary|Solve this multiplication dynamic task line: 20 * 9&7!|180"
+    set {_d::458} to "458|chat|Legendary|Trivia: What structure room houses stronghold libraries down below surfaces?|stronghold"
+    set {_d::459} to "459|chat|Legendary|Unscramble this dangerous silver infestation mob type: s_i_l_v_e_r_f_i_s_h&7!|silverfish"
+    set {_d::460} to "460|chat|Legendary|Type this item framework that spawns silverfish endlessly: s_p_a_w_n_e_r&7!|spawner"
+    set {_d::461} to "461|chat|Legendary|Trivia: How many active end portal frame blocks exist per standard room?|12"
+    set {_d::462} to "462|chat|Legendary|Unreverse this stone variant block type found in fortresses: e_n_o_t_s_y_s_s_o_m&7!|mossy stone"
+    set {_d::463} to "463|chat|Legendary|Solve this quick operational addition calculation: 650 + 250&7!|900"
+    set {_d::464} to "464|chat|Legendary|Trivia: What standard item loot container spawns inside hidden altar rooms?|chest"
+    set {_d::465} to "465|chat|Legendary|Unscramble this unique defensive fortress wall unit: i_r_o_n_b_a_r_s&7!|iron bars"
+    set {_d::466} to "466|chat|Legendary|Type this classic structural block component: s_t_o_n_e_b_r_i_c_k_s&7!|stone bricks"
+    set {_d::467} to "467|chat|Legendary|Trivia: What specialized villager job class works directly with brewing stands?|cleric"
+    set {_d::468} to "468|chat|Legendary|Unreverse this dynamic trading workstation item block: n_r_e_t_c_e_l&7!|lectern"
+    set {_d::469} to "469|chat|Legendary|Solve this subtraction arithmetic mental challenge: 850 - 150&7!|700"
+    set {_d::470} to "470|chat|Legendary|Trivia: What workstation block type allows turning a villager into an armorer?|blast furnace"
+    set {_d::471} to "471|chat|Legendary|Unscramble this classic farming workstation tool entity: s_m_i_t_h_i_n_g_t_a_b_l_e&7!|smithing table"
+    set {_d::472} to "472|chat|Legendary|Type this unique trade unit currency block item: e_m_e_r_a_l_d_b_l_o_c_k&7!|emerald block"
+    set {_d::473} to "473|chat|Legendary|Trivia: What primary weapon type do fletcher villagers sell to players?|bow"
+    set {_d::474} to "474|chat|Legendary|Unreverse this processing tool block owned by stonemasons: r_e_t_t_u_c_e_n_o_t_s&7!|stonecutter"
+    set {_d::475} to "475|chat|Legendary|Solve this quick double multiplication step line: 50 * 5&7!|250"
+    set {_d::476} to "476|chat|Legendary|Trivia: What dynamic village event starts when a bad omen status triggers?|raid"
+    set {_d::477} to "477|chat|Legendary|Unscramble this horn blowing raiding monster entity: r_a_v_a_g_e_r&7!|ravager"
+    set {_d::478} to "478|chat|Legendary|Type this potion throwing raiding magical witch variant: w_i_t_c_h&7!|witch"
+    set {_d::479} to "479|chat|Legendary|Trivia: What valuable safety item drops from vindicator or evoker mobs during raids?|totem of undying"
+    set {_d::480} to "480|chat|Legendary|Unreverse this protective structure banner item type: r_e_n_n_a_b_r_e_g_a_l_l_i&7!|illager banner"
+    set {_d::481} to "481|chat|Legendary|Solve this basic math sum dynamic value total: 350 + 350&7!|700"
+    set {_d::482} to "482|chat|Legendary|Trivia: What beneficial status effect lowers villager trade costs after a raid?|hero of the village"
+    set {_d::483} to "483|chat|Legendary|Unscramble this raiding mob type that summons vexes: e_v_o_k_e_r&7!|evoker"
+    set {_d::484} to "484|chat|Legendary|Type this basic leather producing passive farm animal: c_o_w&7!|cow"
+    set {_d::485} to "485|chat|Legendary|Trivia: What item can be milked from cows to completely clear active potion effects?|milk bucket"
+    set {_d::486} to "486|chat|Legendary|Unreverse this farming field production tracking harvest plant: o_t_a_t_o_p&7!|potato"
+    set {_d::487} to "487|chat|Legendary|Solve this triple digit standard equation: 555 - 111&7!|444"
+    set {_d::488} to "488|chat|Legendary|Trivia: What item type is harvested to breed passive pet wolf entities?|bone"
+    set {_d::489} to "489|chat|Legendary|Unscramble this common farming field seed product block: p_u_m_p_k_i_n&7!|pumpkin"
+    set {_d::490} to "490|chat|Legendary|Type this item needed to craft a glowing jack o lantern: t_o_r_c_h&7!|torch"
+    set {_d::491} to "491|chat|Legendary|Trivia: What block structure component is required to capture and breed bee mobs?|beehive"
+    set {_d::492} to "492|chat|Legendary|Unreverse this sticky honey block production output resource: b_m_o_c_y_e_n_o_h&7!|honeycomb"
+    set {_d::493} to "493|chat|Legendary|Solve this quick numeric division evaluation task: 600 / 3&7!|200"
+    set {_d::494} to "494|chat|Legendary|Trivia: What friendly creature cross pollinates crop fields and collects nectar?|bee"
+    set {_d::495} to "495|chat|Legendary|Unscramble this targeted automation item wire sensor: d_a_y_l_i_g_h_t_d_e_t_e_c_t_o_r&7!|daylight detector"
+    set {_d::496} to "496|chat|Legendary|Type this functional utility block utilized to change spawn points: b_e_d&7!|bed"
+    set {_d::497} to "497|chat|Legendary|Trivia: What rare structural item stops phantoms from spawning at night?|bed"
+    set {_d::498} to "498|chat|Legendary|Unreverse this flying monster item drop resource: e_n_a_r_b_m_e_m_m_o_t_n_a_h_p&7!|phantom membrane"
+    set {_d::499} to "499|chat|Legendary|Solve this mental math challenge step formula: 450 * 2&7!|900"
+    set {_d::500} to "500|chat|Legendary|Trivia: What tool is utilized to alter or smooth out copper block oxidation states?|axe"
+    loop {_d::*}:
+        set {_s::*} to loop-value split at "|"
+        set {-amc::games::%{_s::1}%::type} to {_s::2}
+        set {-amc::games::%{_s::1}%::diff} to {_s::3}
+        set {-amc::games::%{_s::1}%::quest} to {_s::4}
+        set {-amc::games::%{_s::1}%::ans} to {_s::5}
+        add 1 to {-amc::total_loaded}
+command /minigamefinishall:
+    permission: ardenmc.admin
+    trigger:
+        delete {-amc::games::11::*}
+        delete {-amc::games::51::*}
+        delete {-amc::games::88::*}
+        execute console command "/minigamereloadall"
+        amc_msg(player, "{@p} &aAll successfully synchronized and registered into memory!")
+        stop
+every 3 minutes:
+    if {amc.locked} is false:
+        if {game.active} is false:
+            set {amc.last_game_time} to now
+            set {_random_id} to random integer between 1 and 500
+            execute console command "/minigame start %{_random_id}%"
