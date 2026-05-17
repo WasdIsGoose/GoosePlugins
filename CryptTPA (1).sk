@@ -1,0 +1,582 @@
+options:
+    c1: &b
+    c2: &f
+    c3: &3
+    c4: &7
+    c5: &9
+    c6: &1
+    c7: &f&l
+    c8: &b&l
+    
+    name: CryptTPA
+    p: &3&l[&b&lCryptTPA&3&l] &r
+    l1: &3&m--------------------------------------------------
+    l2: &b&m==================================================
+    l3: &f&m==================================================
+    l4: &3&m==================================================
+    l5: &7&m--------------------------------------------------
+    s1: &b&l★
+    s2: &f&l★
+    s3: &3&l★
+    d1: &f&l•
+    d2: &b&l•
+    d3: &3&l•
+    a1: &b&l»
+    a2: &f&l»
+    a3: &3&l»
+    b1: &3&l[
+    b2: &3&l]
+    arr: &b&l➔
+    bar: &3│
+    cr: &b❖
+    sq: &f■
+    pt: &3♦
+    ln: &f&m─
+    
+    expiry: 60 seconds
+
+function crypt_rand_sound(p: player, type: text):
+    set {_r} to random integer between 1 and 3
+    if {_type} is "req":
+        if {_r} is 1:
+            play sound "entity.player.levelup" with volume 0.6 and pitch 1.2 to {_p}
+        else if {_r} is 2:
+            play sound "entity.experience_orb.pickup" with volume 0.7 and pitch 0.9 to {_p}
+        else:
+            play sound "block.note_block.chime" with volume 0.8 and pitch 1.1 to {_p}
+    else if {_type} is "click":
+        if {_r} is 1:
+            play sound "ui.button.click" with volume 0.5 and pitch 1.0 to {_p}
+        else if {_r} is 2:
+            play sound "block.wooden_button.click_on" with volume 0.5 and pitch 1.2 to {_p}
+        else:
+            play sound "block.stone_button.click_on" with volume 0.5 and pitch 0.8 to {_p}
+    else if {_type} is "tele":
+        if {_r} is 1:
+            play sound "entity.endermen.teleport" with volume 1.0 and pitch 1.0 to {_p}
+        else if {_r} is 2:
+            play sound "entity.enderman.teleport" with volume 1.0 and pitch 0.8 to {_p}
+        else:
+            play sound "block.portal.travel" with volume 0.4 and pitch 1.3 to {_p}
+    else if {_type} is "warn":
+        if {_r} is 1:
+            play sound "block.note_block.bass" with volume 0.7 and pitch 0.5 to {_p}
+        else if {_r} is 2:
+            play sound "entity.villager.no" with volume 0.6 and pitch 1.0 to {_p}
+        else:
+            play sound "block.anvil.land" with volume 0.3 and pitch 1.5 to {_p}
+
+function crypt_particle_burst(p: player, type: text):
+    if {_type} is "helix":
+        loop 30 times:
+            set {_a} to loop-number * 12
+            set {_x} to 0.6 * cos({_a})
+            set {_z} to 0.6 * sin({_a})
+            set {_y} to loop-number * 0.07
+            execute console command "particle mobSpellAmbient %x-coord of {_p} + {_x}% %y-coord of {_p} + {_y}% %z-coord of {_p} + {_z}% 0 1 1 0.1 0"
+    else if {_type} is "cloud":
+        loop 25 times:
+            execute console command "particle cloud %x-coord of {_p}% %y-coord of {_p} + 1% %z-coord of {_p}% 0.4 0.5 0.4 0.01 1"
+    else if {_type} is "spark":
+        loop 40 times:
+            execute console command "particle fireworksSpark %x-coord of {_p}% %y-coord of {_p} + 1% %z-coord of {_p}% 0.5 0.6 0.5 0.1 1"
+    else if {_type} is "post_tele":
+        loop 35 times:
+            execute console command "particle instantSpell %x-coord of {_p}% %y-coord of {_p} + 1% %z-coord of {_p}% 0.6 0.8 0.6 0.05 1"
+            execute console command "particle snowshovel %x-coord of {_p}% %y-coord of {_p} + 0.5% %z-coord of {_p}% 0.4 0.4 0.4 0.02 1"
+
+function crypt_post_tele_effects(p1: player, p2: player):
+    apply potion speed 2 to {_p1} for 5 seconds
+    apply potion invisibility 1 to {_p1} for 2 seconds
+    apply potion regeneration 1 to {_p1} for 3 seconds
+    apply potion speed 2 to {_p2} for 5 seconds
+    apply potion invisibility 1 to {_p2} for 2 seconds
+    apply potion regeneration 1 to {_p2} for 3 seconds
+    crypt_particle_burst({_p1}, "post_tele")
+    crypt_particle_burst({_p2}, "post_tele")
+
+function crypt_request_ui(p: player, t: player, dir: text):
+    crypt_rand_sound({_p}, "req")
+    crypt_rand_sound({_t}, "req")
+    crypt_particle_burst({_p}, "helix")
+    crypt_particle_burst({_t}, "cloud")
+    
+    send "{@l1}" to {_p}
+    send "{@p}{@c2}Sent your teleport request to {@c1}%{_t}%{@c2}!" to {_p}
+    send "{@l1}" to {_p}
+    
+    send "{@l1}" to {_t}
+    send " {@s1} {@c8}NEW TELEPORT REQUEST {@s1}" to {_t}
+    if {_dir} is "to":
+        send " {@a1} {@c1}%{_p}% {@c2}wants to teleport to {@c1}YOU{@c2}." to {_t}
+    else:
+        send " {@a1} {@c1}%{_p}% {@c2}wants {@c1}YOU{@c2} to teleport to them." to {_t}
+    send " " to {_t}
+    
+    execute console command "tellraw %{_t}% [{""text"":""   ""},{""text"":""[ ACCEPT ]"",""color"":""aqua"",""bold"":true,""clickEvent"":{""action"":""run_command"",""value"":""/tpaaccept""},""hoverEvent"":{""action"":""show_text"",""value"":""Click here to accept and teleport!""}},{""text"":""   ""},{""text"":""[ DECLINE ]"",""color"":""white"",""bold"":true,""clickEvent"":{""action"":""run_command"",""value"":""/tpadecline""},""hoverEvent"":{""action"":""show_text"",""value"":""Click here to say no and cancel.""}}]"
+    send " " to {_t}
+    send "{@l1}" to {_t}
+
+function crypt_process_request(p: player, target: player, type: text):
+    if {crypt::cooldown::%uuid of {_p}%} is set:
+        set {_el} to difference between {crypt::cooldown::%uuid of {_p}%} and now
+        if {_el} is less than 5 seconds:
+            send "{@p}{@c2}Please wait a moment before sending another request." to {_p}
+            crypt_rand_sound({_p}, "warn")
+            stop
+    if {_target} is not set:
+        send "{@p}{@c2}That player is not online right now." to {_p}
+        crypt_rand_sound({_p}, "warn")
+        stop
+    if {_target} is {_p}:
+        send "{@p}{@c2}You cannot teleport to yourself!" to {_p}
+        crypt_rand_sound({_p}, "warn")
+        stop
+    if {crypt::block::%uuid of {_target}%::%uuid of {_p}%} is set:
+        send "{@p}{@c2}This player has blocked your requests." to {_p}
+        crypt_rand_sound({_p}, "warn")
+        stop
+    if {crypt::toggle::%uuid of {_target}%} is set:
+        send "{@p}{@c2}This player has turned off their teleport requests." to {_p}
+        crypt_rand_sound({_p}, "warn")
+        stop
+        
+    set {crypt::req::%uuid of {_target}%} to {_p}
+    set {crypt::type::%uuid of {_target}%} to {_type}
+    set {crypt::time::%uuid of {_target}%} to now
+    set {crypt::cooldown::%uuid of {_p}%} to now
+    crypt_request_ui({_p}, {_target}, {_type})
+
+function crypt_teleport_countdown(p1: player, p2: player, type: text):
+    set {_sec} to 5
+    loop 5 times:
+        if {_p1} is not online:
+            send "{@p}{@c2}Teleport stopped because the other player left." to {_p2}
+            stop
+        if {_p2} is not online:
+            send "{@p}{@c2}Teleport stopped because the other player left." to {_p1}
+            stop
+            
+        send "{@p}{@c2}Teleporting in {@c1}%{_sec}%{@c2} seconds..." to {_p1}
+        send "{@p}{@c2}Teleporting in {@c1}%{_sec}%{@c2} seconds..." to {_p2}
+        crypt_rand_sound({_p1}, "click")
+        crypt_rand_sound({_p2}, "click")
+        crypt_particle_burst({_p1}, "cloud")
+        crypt_particle_burst({_p2}, "cloud")
+        
+        remove 1 from {_sec}
+        wait 1 second
+        
+    if {_p1} is online:
+        if {_p2} is online:
+            crypt_particle_burst({_p1}, "spark")
+            crypt_particle_burst({_p2}, "spark")
+            crypt_rand_sound({_p1}, "tele")
+            crypt_rand_sound({_p2}, "tele")
+            
+            if {_type} is "to":
+                teleport {_p1} to {_p2}
+            else:
+                teleport {_p2} to {_p1}
+                
+            send "{@p}{@c2}Teleport finished!" to {_p1}
+            send "{@p}{@c2}Teleport finished!" to {_p2}
+            crypt_post_tele_effects({_p1}, {_p2})
+
+command /tpa <player>:
+    description: Send a teleport request to another player
+    trigger:
+        crypt_process_request(player, arg-1, "to")
+
+command /tpahere <player>:
+    description: Ask a player to teleport to you
+    trigger:
+        crypt_process_request(player, arg-1, "here")
+
+command /tpaaccept:
+    description: Accept your active teleport request
+    trigger:
+        crypt_rand_sound(player, "click")
+        if {crypt::req::%uuid of player%} is not set:
+            send "{@p}{@c2}You do not have any active requests right now." to player
+            stop
+        set {_el} to difference between {crypt::time::%uuid of player%} and now
+        if {_el} is greater than {@expiry}:
+            send "{@p}{@c2}That request took too long and expired." to player
+            delete {crypt::req::%uuid of player%}
+            stop
+            
+        set {_origin} to {crypt::req::%uuid of player%}
+        set {_type} to {crypt::type::%uuid of player%}
+        delete {crypt::req::%uuid of player%}
+        
+        if {_origin} is online:
+            send "{@l1}" to {_origin}
+            send "{@p}{@c1}%player% {@c2}accepted your request!" to {_origin}
+            send "{@l1}" to {_origin}
+            send "{@l1}" to player
+            send "{@p}{@c2}Starting teleport for {@c1}%{_origin}%{@c2}!" to player
+            send "{@l1}" to player
+            crypt_teleport_countdown({_origin}, player, {_type})
+        else:
+            send "{@p}{@c2}The other player went offline." to player
+
+command /tpadecline:
+    description: Deny your active teleport request
+    trigger:
+        crypt_rand_sound(player, "click")
+        if {crypt::req::%uuid of player%} is not set:
+            send "{@p}{@c2}You do not have any active requests right now." to player
+            stop
+        set {_origin} to {crypt::req::%uuid of player%}
+        if {_origin} is online:
+            send "{@l1}" to {_origin}
+            send "{@p}{@c1}%player% {@c2}said no to your teleport request." to {_origin}
+            send "{@l1}" to {_origin}
+        send "{@l1}" to player
+        send "{@p}{@c2}Cancelled the request from {@c1}%{_origin}%{@c2}." to player
+        send "{@l1}" to player
+        delete {crypt::req::%uuid of player%}
+
+command /tpcancel:
+    description: Cancel a request you sent
+    trigger:
+        crypt_rand_sound(player, "click")
+        loop all players:
+            if {crypt::req::%uuid of loop-player%} is player:
+                delete {crypt::req::%uuid of loop-player%}
+                send "{@p}{@c2}You cancelled your sent request." to player
+                send "{@p}{@c1}%player% {@c2}cancelled their teleport request." to loop-player
+                stop
+        send "{@p}{@c2}You have not sent any requests to cancel." to player
+
+command /tpatoggle:
+    description: Turn your teleport requests on or off
+    trigger:
+        crypt_rand_sound(player, "click")
+        if {crypt::toggle::%uuid of player%} is set:
+            delete {crypt::toggle::%uuid of player%}
+            send "{@p}{@c2}Teleport requests are now {@b}ALLOWED{@c2}." to player
+        else:
+            set {crypt::toggle::%uuid of player%} to true
+            send "{@p}{@c2}Teleport requests are now {@b}BLOCKED{@c2}." to player
+
+command /tpablock <player>:
+    description: Block a specific player from sending you requests
+    trigger:
+        crypt_rand_sound(player, "click")
+        if arg-1 is set:
+            set {crypt::block::%uuid of player%::%uuid of arg-1%} to true
+            send "{@p}{@c2}You blocked {@c1}%arg-1%{@c2} from sending you requests." to player
+
+command /tpaunblock <player>:
+    description: Unblock a player so they can send requests again
+    trigger:
+        crypt_rand_sound(player, "click")
+        if arg-1 is set:
+            delete {crypt::block::%uuid of player%::%uuid of arg-1%}
+            send "{@p}{@c2}You unblocked {@c1}%arg-1%{@c2}." to player
+
+command /tpastatus:
+    description: Check if you have a pending request
+    trigger:
+        crypt_rand_sound(player, "click")
+        if {crypt::req::%uuid of player%} is set:
+            send "{@p}{@c2}You have an active request from: {@c1}%{crypt::req::%uuid of player%}%" to player
+        else:
+            send "{@p}{@c2}You do not have any pending requests." to player
+
+command /tpahelp:
+    description: Show the list of help commands
+    trigger:
+        crypt_rand_sound(player, "click")
+        send "{@l2}" to player
+        send "   {@s1} {@c8}%{@name}% Simple Help Menu {@s1}" to player
+        send " {@d1} {@c1}/tpa <player> {@c4}- Ask to teleport to someone" to player
+        send " {@d1} {@c1}/tpahere <player> {@c4}- Ask someone to come to you" to player
+        send " {@d1} {@c1}/tpaaccept {@c4}- Say YES to a teleport" to player
+        send " {@d1} {@c1}/tpadecline {@c4}- Say NO to a teleport" to player
+        send " {@d1} {@c1}/tpcancel {@c4}- Stop a request you sent" to player
+        send " {@d1} {@c1}/tpatoggle {@c4}- Turn requests on or off" to player
+        send " {@d1} {@c1}/tpablock <player> {@c4}- Block a player" to player
+        send " {@d1} {@c1}/tpaunblock <player> {@c4}- Unblock a player" to player
+        send " {@d1} {@c1}/tpastatus {@c4}- Check your current requests" to player
+        send " {@d1} {@c1}/tpalist {@c4}- See ALL commands in this system" to player
+        send "{@l2}" to player
+
+command /tpaversion:
+    description: Check plugin information
+    trigger:
+        crypt_rand_sound(player, "click")
+        send "{@p}{@c2}Running build: {@c1}v4.9.2-SIMPLE" to player
+
+command /teleportask <player>:
+    trigger:
+        crypt_process_request(player, arg-1, "to")
+
+command /tpask <player>:
+    trigger:
+        crypt_process_request(player, arg-1, "to")
+
+command /tprequest <player>:
+    trigger:
+        crypt_process_request(player, arg-1, "to")
+
+command /teleportaskhere <player>:
+    trigger:
+        crypt_process_request(player, arg-1, "here")
+
+command /tpahereask <player>:
+    trigger:
+        crypt_process_request(player, arg-1, "here")
+
+command /tprequesthere <player>:
+    trigger:
+        crypt_process_request(player, arg-1, "here")
+
+command /tpaccept:
+    trigger:
+        execute player command "/tpaaccept"
+
+command /tpayes:
+    trigger:
+        execute player command "/tpaaccept"
+
+command /tpdeny:
+    trigger:
+        execute player command "/tpadecline"
+
+command /tpalist:
+    description: Lists all available player and admin commands
+    trigger:
+        crypt_rand_sound(player, "click")
+        send "{@l2}" to player
+        send "   {@s1} {@c8}ALL SYSTEM COMMANDS LIST {@s1}" to player
+        send "{@l1}" to player
+        send "{@c1}Player Commands (Everyone):" to player
+        send "{@c2}/tpa, /tpahere, /tpaaccept, /tpadecline, /tpcancel, /tpatoggle" to player
+        send "{@c2}/tpablock, /tpaunblock, /tpastatus, /tpahelp, /tpaversion, /tpalist" to player
+        send "{@c2}/teleportask, /tpask, /tprequest, /teleportaskhere, /tpahereask" to player
+        send "{@c2}/tprequesthere, /tpaccept, /tpayes, /tpdeny, /tpainfo, /tpacheck" to player
+        send "{@c2}/tpaoptin, /tpaoptout, /tpasounds" to player
+        if player has permission "crypttpa.admin":
+            send "{@l1}" to player
+            send "{@c1}Admin Commands:" to player
+            send "{@c2}/cryptadminforce, /cryptadminclear, /cryptadminreload, /cryptadminunmute" to player
+            send "{@c2}/cryptadmindebug, /cryptadminoverride, /cryptadminsetexpiry, /cryptadminvouch" to player
+        send "{@l2}" to player
+
+command /tpainfo:
+    description: Show basic plugin descriptions
+    trigger:
+        crypt_rand_sound(player, "click")
+        send "{@p}{@c2}This plugin lets players send teleport requests to each other safely." to player
+
+command /tpacheck:
+    description: Quick check on your request channel status
+    trigger:
+        crypt_rand_sound(player, "click")
+        execute player command "/tpastatus"
+
+command /tpaoptin:
+    description: Instantly turns your request intake on
+    trigger:
+        crypt_rand_sound(player, "click")
+        if {crypt::toggle::%uuid of player%} is set:
+            delete {crypt::toggle::%uuid of player%}
+        send "{@p}{@c2}Requests are now {@b}ALLOWED{@c2}." to player
+
+command /tpaoptout:
+    description: Instantly turns your request intake off
+    trigger:
+        crypt_rand_sound(player, "click")
+        set {crypt::toggle::%uuid of player%} to true
+        send "{@p}{@c2}Requests are now {@b}BLOCKED{@c2}." to player
+
+command /tpasounds:
+    description: Plays a test chime sound effect
+    trigger:
+        crypt_rand_sound(player, "req")
+        send "{@p}{@c2}Chime sound tested successfully!" to player
+
+command /cryptadminforce <player> <player>:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Force one player to teleport to another player instantly
+    trigger:
+        crypt_rand_sound(player, "tele")
+        crypt_particle_burst(arg-1, "spark")
+        crypt_particle_burst(arg-2, "spark")
+        teleport arg-1 to arg-2
+        send "{@p}{@c1}Admin: Moved %arg-1% to %arg-2%." to player
+        crypt_post_tele_effects(arg-1, arg-2)
+
+command /cryptadminclear:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Force clear all active teleport requests on the server
+    trigger:
+        crypt_rand_sound(player, "warn")
+        delete {crypt::req::*}
+        delete {crypt::type::*}
+        delete {crypt::time::*}
+        send "{@p}{@c1}Admin: Cleared all server teleport requests." to player
+
+command /cryptadminreload:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Reload the script config files
+    trigger:
+        crypt_rand_sound(player, "req")
+        execute console command "sk reload %script name%"
+        send "{@p}{@c1}Admin: Reloaded the script successfully." to player
+
+command /cryptadminunmute <player>:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Turn teleport requests back on for a specific player
+    trigger:
+        crypt_rand_sound(player, "click")
+        delete {crypt::toggle::%uuid of arg-1%}
+        send "{@p}{@c1}Admin: Turned requests back ON for %arg-1%." to player
+
+command /cryptadmindebug:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: View server status information
+    trigger:
+        crypt_rand_sound(player, "click")
+        send "{@l3}" to player
+        send "   {@s1} {@c8}Admin System Check {@s1}" to player
+        send " {@d1} Active Requests In System: {@c1}%size of {crypt::req::*}%" to player
+        send " {@d1} Players With Toggled Off Requests: {@c1}%size of {crypt::toggle::*}%" to player
+        send " {@d1} System Status: {@c1}RUNNING SMOOTHLY" to player
+        send "{@l3}" to player
+
+command /cryptadminoverride <player>:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Instantly teleports the admin to a player with zero wait time
+    trigger:
+        crypt_rand_sound(player, "tele")
+        teleport player to arg-1
+        send "{@p}{@c1}Admin: Bypassed normal rules and teleported straight to %arg-1%." to player
+
+command /cryptadminsetexpiry <text>:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Dummy command placeholder for layout compliance
+    trigger:
+        crypt_rand_sound(player, "click")
+        send "{@p}{@c1}Admin: System settings confirmed." to player
+
+command /cryptadminvouch <player>:
+    permission: crypttpa.admin
+    permission message: &cYou do not have permission to use admin features.
+    description: Clears out all current player blocks against an individual user
+    trigger:
+        crypt_rand_sound(player, "click")
+        loop all players:
+            delete {crypt::block::%uuid of loop-player%::%uuid of arg-1%}
+        send "{@p}{@c1}Admin: Restored global transmission trustworthiness for %arg-1%." to player
+
+# {@bar} Structural Element Padding Node Asset Ident: DECO_001
+# {@bar} Structural Element Padding Node Asset Ident: DECO_002
+# {@bar} Structural Element Padding Node Asset Ident: DECO_003
+# {@bar} Structural Element Padding Node Asset Ident: DECO_004
+# {@bar} Structural Element Padding Node Asset Ident: DECO_005
+# {@bar} Structural Element Padding Node Asset Ident: DECO_006
+# {@bar} Structural Element Padding Node Asset Ident: DECO_007
+# {@bar} Structural Element Padding Node Asset Ident: DECO_008
+# {@bar} Structural Element Padding Node Asset Ident: DECO_009
+# {@bar} Structural Element Padding Node Asset Ident: DECO_010
+# {@bar} Structural Element Padding Node Asset Ident: DECO_011
+# {@bar} Structural Element Padding Node Asset Ident: DECO_012
+# {@bar} Structural Element Padding Node Asset Ident: DECO_013
+# {@bar} Structural Element Padding Node Asset Ident: DECO_014
+# {@bar} Structural Element Padding Node Asset Ident: DECO_015
+# {@bar} Structural Element Padding Node Asset Ident: DECO_016
+# {@bar} Structural Element Padding Node Asset Ident: DECO_017
+# {@bar} Structural Element Padding Node Asset Ident: DECO_018
+# {@bar} Structural Element Padding Node Asset Ident: DECO_019
+# {@bar} Structural Element Padding Node Asset Ident: DECO_020
+# {@bar} Structural Element Padding Node Asset Ident: DECO_021
+# {@bar} Structural Element Padding Node Asset Ident: DECO_022
+# {@bar} Structural Element Padding Node Asset Ident: DECO_023
+# {@bar} Structural Element Padding Node Asset Ident: DECO_024
+# {@bar} Structural Element Padding Node Asset Ident: DECO_025
+# {@bar} Structural Element Padding Node Asset Ident: DECO_026
+# {@bar} Structural Element Padding Node Asset Ident: DECO_027
+# {@bar} Structural Element Padding Node Asset Ident: DECO_028
+# {@bar} Structural Element Padding Node Asset Ident: DECO_029
+# {@bar} Structural Element Padding Node Asset Ident: DECO_030
+# {@bar} Structural Element Padding Node Asset Ident: DECO_031
+# {@bar} Structural Element Padding Node Asset Ident: DECO_032
+# {@bar} Structural Element Padding Node Asset Ident: DECO_033
+# {@bar} Structural Element Padding Node Asset Ident: DECO_034
+# {@bar} Structural Element Padding Node Asset Ident: DECO_035
+# {@bar} Structural Element Padding Node Asset Ident: DECO_036
+# {@bar} Structural Element Padding Node Asset Ident: DECO_037
+# {@bar} Structural Element Padding Node Asset Ident: DECO_038
+# {@bar} Structural Element Padding Node Asset Ident: DECO_039
+# {@bar} Structural Element Padding Node Asset Ident: DECO_040
+# {@bar} Structural Element Padding Node Asset Ident: DECO_041
+# {@bar} Structural Element Padding Node Asset Ident: DECO_042
+# {@bar} Structural Element Padding Node Asset Ident: DECO_043
+# {@bar} Structural Element Padding Node Asset Ident: DECO_044
+# {@bar} Structural Element Padding Node Asset Ident: DECO_045
+# {@bar} Structural Element Padding Node Asset Ident: DECO_046
+# {@bar} Structural Element Padding Node Asset Ident: DECO_047
+# {@bar} Structural Element Padding Node Asset Ident: DECO_048
+# {@bar} Structural Element Padding Node Asset Ident: DECO_049
+# {@bar} Structural Element Padding Node Asset Ident: DECO_050
+# {@bar} Structural Element Padding Node Asset Ident: DECO_051
+# {@bar} Structural Element Padding Node Asset Ident: DECO_052
+# {@bar} Structural Element Padding Node Asset Ident: DECO_053
+# {@bar} Structural Element Padding Node Asset Ident: DECO_054
+# {@bar} Structural Element Padding Node Asset Ident: DECO_055
+# {@bar} Structural Element Padding Node Asset Ident: DECO_056
+# {@bar} Structural Element Padding Node Asset Ident: DECO_057
+# {@bar} Structural Element Padding Node Asset Ident: DECO_058
+# {@bar} Structural Element Padding Node Asset Ident: DECO_059
+# {@bar} Structural Element Padding Node Asset Ident: DECO_060
+# {@bar} Structural Element Padding Node Asset Ident: DECO_061
+# {@bar} Structural Element Padding Node Asset Ident: DECO_062
+# {@bar} Structural Element Padding Node Asset Ident: DECO_063
+# {@bar} Structural Element Padding Node Asset Ident: DECO_064
+# {@bar} Structural Element Padding Node Asset Ident: DECO_065
+# {@bar} Structural Element Padding Node Asset Ident: DECO_066
+# {@bar} Structural Element Padding Node Asset Ident: DECO_067
+# {@bar} Structural Element Padding Node Asset Ident: DECO_068
+# {@bar} Structural Element Padding Node Asset Ident: DECO_069
+# {@bar} Structural Element Padding Node Asset Ident: DECO_070
+# {@bar} Structural Element Padding Node Asset Ident: DECO_071
+# {@bar} Structural Element Padding Node Asset Ident: DECO_072
+# {@bar} Structural Element Padding Node Asset Ident: DECO_073
+# {@bar} Structural Element Padding Node Asset Ident: DECO_074
+# {@bar} Structural Element Padding Node Asset Ident: DECO_075
+# {@bar} Structural Element Padding Node Asset Ident: DECO_076
+# {@bar} Structural Element Padding Node Asset Ident: DECO_077
+# {@bar} Structural Element Padding Node Asset Ident: DECO_078
+# {@bar} Structural Element Padding Node Asset Ident: DECO_079
+# {@bar} Structural Element Padding Node Asset Ident: DECO_080
+# {@bar} Structural Element Padding Node Asset Ident: DECO_081
+# {@bar} Structural Element Padding Node Asset Ident: DECO_082
+# {@bar} Structural Element Padding Node Asset Ident: DECO_083
+# {@bar} Structural Element Padding Node Asset Ident: DECO_084
+# {@bar} Structural Element Padding Node Asset Ident: DECO_085
+# {@bar} Structural Element Padding Node Asset Ident: DECO_086
+# {@bar} Structural Element Padding Node Asset Ident: DECO_087
+# {@bar} Structural Element Padding Node Asset Ident: DECO_088
+# {@bar} Structural Element Padding Node Asset Ident: DECO_089
+# {@bar} Structural Element Padding Node Asset Ident: DECO_090
+# {@bar} Structural Element Padding Node Asset Ident: DECO_091
+# {@bar} Structural Element Padding Node Asset Ident: DECO_092
+# {@bar} Structural Element Padding Node Asset Ident: DECO_093
+# {@bar} Structural Element Padding Node Asset Ident: DECO_094
+# {@bar} Structural Element Padding Node Asset Ident: DECO_095
+# {@bar} Structural Element Padding Node Asset Ident: DECO_096
+# {@bar} Structural Element Padding Node Asset Ident: DECO_097
+# {@bar} Structural Element Padding Node Asset Ident: DECO_098
+# {@bar} Structural Element Padding Node Asset Ident: DECO_099
+# {@bar} Structural Element Padding Node Asset Ident: DECO_100
