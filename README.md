@@ -1,5 +1,5 @@
 
-# 🪶 GoosePlugin All in 1 Server Plugin
+# 🪶 GooseCore All in 1 Server Plugin
 
 The ultimate hub for every plugin you will ever need to keep your servers running smoothly. Curated by WasdIsgoose.
 <img width="197" height="194" alt="Screenshot 2026-05-26 5 00 18 PM" src="https://github.com/user-attachments/assets/caa2229a-17cc-491b-b8df-a675ae243d1a" />
