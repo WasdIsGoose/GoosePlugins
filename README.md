@@ -8,18 +8,31 @@ The ultimate hub for every plugin you will ever need to keep your servers runnin
 ### 🚀 Essential Server Utilities
 
 Total files	49
+
 Java source files	44
+
 Java lines of code	~2,168
+
 Config/YAML lines	~810
+
 Total lines	~2,978
+
 Commands in GooseCore alone	65+ commands
+
 What's 100% config-editable:
+
 All messages, prefixes, colors in config.yml
+
 All ranks, permissions, prefixes in groups.yml
+
 Economy currency symbol, name, format
+
 Chat format, AFK timeout, maintenance mode
+
 GUI border materials, colors
+
 Every command can be disabled via config
+
 
 ### 💬 Support & Contact
 
