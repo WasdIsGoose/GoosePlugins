@@ -1,7 +1,8 @@
+
 # 🪶 GoosePlugin
 
 The ultimate hub for every plugin you will ever need to keep your servers running smoothly. Curated by WasdIsgoose.
-
+<img width="355" height="356" alt="Screenshot 2026-05-26 4 53 17 PM" src="https://github.com/user-attachments/assets/2199fe84-5cec-4e2b-b1d1-c54fa9528724" />
 ***
 
 ### 🚀 Essential Server Utilities
