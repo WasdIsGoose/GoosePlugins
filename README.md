@@ -7,29 +7,6 @@ The ultimate hub for every plugin you will ever need to keep your servers runnin
 
 ### 🚀 Essential Server Utilities
 
-Plugin	Purpose
-GooseCore	Foundation plugin — all utilities, workbench commands, teleport, god mode, vanish, AFK, messages, GUI engine
-GoosePerms	Custom LuckPerms replacement — ranks, groups, permissions, inheritance, GUI rank editor
-GooseVault	Custom Vault/economy replacement — balances, pay, baltop, bank with interest
-GooseChat	Chat formatting, filter, colors, rank prefixes
-GooseTab	Tab list customization
-GooseShops	Player & admin shops
-GooseAuctions	Auction house
-GooseWarps	Server warps with GUI
-GooseSpawn	Spawn management
-GooseWorldProtect	WorldGuard replacement — region protection
-GooseCrates	Crate key system
-GooseDiscord	Discord webhook logging (chat, joins, bans)
-GooseMinigames	Chat minigames
-GooseAntiCheat	Anti-cheat system
-GooseTPA	Teleport request system
-GooseKits	Kit system
-GooseHomes	Player homes
-GooseEconomy	Extended economy features
-GooseRanks	Rank-up ladder system
-GooseMotd	Customizable MOTD
-Current Code Stats
-Category	Count
 Total files	49
 Java source files	44
 Java lines of code	~2,168
